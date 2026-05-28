@@ -1,18 +1,19 @@
-## Getting Started
+# 🍊 Citrusian
 
-Welcome to the VS Code Java world. Here is a guideline to help you get started to write Java code in Visual Studio Code.
+A 2D action-RPG built entirely in Java, developed by a team of 4 (2 juniors, 2 seniors).
 
-## Folder Structure
+Play as the **Lone Orange**, a resilient survivor on the Isle of Nectar. The Rot Root Clan — an army of earth-dwelling vegetables — has stolen the sacred Citrusian Helm, and the island's fruits are beginning to wither. Journey to the decaying heart of the island and take it back.
 
-The workspace contains two folders by default, where:
+## Gameplay
+- Explore an open world with dungeons, boss fights, and NPCs
+- Collect weapons, shields, and power-ups (dash, invisibility, fire seeds, and more)
+- Fight bosses including Boss Broccoli (2-phase), Baron Rotjaw, and the Slime King
+- Save/load system, cutscenes, lighting engine, and pathfinding AI
 
-- `src`: the folder to maintain sources
-- `lib`: the folder to maintain dependencies
+## Tech
+- Built in Java using custom game engine (no libraries)
+- Tile-based rendering, collision detection, entity system
+- Custom pixel art and original soundtrack
 
-Meanwhile, the compiled output files will be generated in the `bin` folder by default.
-
-> If you want to customize the folder structure, open `.vscode/settings.json` and update the related settings there.
-
-## Dependency Management
-
-The `JAVA PROJECTS` view allows you to manage your dependencies. More details can be found [here](https://github.com/microsoft/vscode-java-dependency#manage-dependencies).
+## Download
+Play on itch.io: [ishans09.itch.io/citrusian](https://ishans09.itch.io/citrusian)
