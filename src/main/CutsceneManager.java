@@ -406,6 +406,24 @@ public class CutsceneManager {
 
             y--;
             drawString(1f, 38f, y, endCredit, 40);
+
+            // Once the credits scroll off (or Enter is pressed), offer New Game+
+            if(y < -400 || gp.keyH.enterPressed) {
+                gp.keyH.enterPressed = false;
+                scenePhase++;
+            }
+        }
+        if(scenePhase == 8) {
+            drawBlackBackground(1f);
+            drawString(1f, 64f, gp.screenHeight/2 - 80, "Thank you for playing!", 60);
+            drawString(1f, 36f, gp.screenHeight/2 + 20,
+                "Press ENTER to start New Game+ " + (gp.ngPlus + 1) + "\n" +
+                "Keep your level and gear. Face tougher veggies.", 50);
+
+            if(gp.keyH.enterPressed) {
+                gp.keyH.enterPressed = false;
+                gp.startNewGamePlus();
+            }
         }
     }
 

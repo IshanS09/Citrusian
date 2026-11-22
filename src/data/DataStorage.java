@@ -48,4 +48,11 @@ public class DataStorage implements Serializable {
     int seedUpgrades;
     int staminaUpgrades;
     int parryUpgrades;
+
+    // Side quests and New Game+
+    int ngPlus;
+    int questIndex;
+    int questProgress;
+    boolean questActive;
+    boolean questIntroDone;
 }

@@ -51,6 +51,12 @@ public class SaveLoad {
             ds.staminaUpgrades = gp.player.staminaUpgrades;
             ds.parryUpgrades = gp.player.parryUpgrades;
 
+            ds.ngPlus = gp.ngPlus;
+            ds.questIndex = gp.questManager.current;
+            ds.questProgress = gp.questManager.progress;
+            ds.questActive = gp.questManager.active;
+            ds.questIntroDone = gp.questManager.introDone;
+
             for(int i = 0; i < gp.player.inventory.size(); i++) {
                 ds.itemNames.add(gp.player.inventory.get(i).name);
                 ds.itemAmounts.add(gp.player.inventory.get(i).amount);
@@ -122,6 +128,12 @@ public class SaveLoad {
             gp.player.maxStamina = Player.BASE_STAMINA + ds.staminaUpgrades * 20;
             gp.player.stamina = ds.hasPosition ? Math.min(ds.stamina, gp.player.maxStamina) : gp.player.maxStamina;
             gp.player.cancelCharge();
+
+            gp.ngPlus = ds.ngPlus;
+            gp.questManager.current = ds.questIndex;
+            gp.questManager.progress = ds.questProgress;
+            gp.questManager.active = ds.questActive;
+            gp.questManager.introDone = ds.questIntroDone;
 
             Progress.maliBrocDefeated = ds.maliBrocDefeated;
             Progress.baronRotjawDefeated = ds.baronRotjawDefeated;

@@ -12,6 +12,9 @@ Play as the **Lone Orange**, a resilient survivor on the Isle of Nectar. The Rot
 - A stamina bar for dashing, guarding and charged attacks
 - Spend Crop Coins at the merchant on upgrades: more fire seeds, more stamina, easier parries, gear repair
 - Watch out for the Weeping Onion's tear gas and the Spud Brute's charge
+- Veggies get tougher at night but drop double coins
+- Side quests from the old apple, with a hidden Golden Seed and a sword you can't buy
+- New Game+ after the credits: keep your level and gear, face tougher veggies
 - Save/load system that remembers where you are, cutscenes, lighting engine, and pathfinding AI
 
 ## Tech

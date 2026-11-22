@@ -86,6 +86,7 @@ public class UI {
            drawPlayerLife();
            drawMonsterLife();
            drawMessage();
+           drawQuestTracker();
        }
        if(gp.gameState == gp.pauseState) {
            drawPlayerLife();
@@ -238,6 +239,31 @@ public class UI {
 
     drawStaminaBar();
 }
+
+    // Top-right corner: current side quest, plus the New Game+ cycle if any
+    public void drawQuestTracker() {
+        g2.setFont(g2.getFont().deriveFont(Font.PLAIN, 26F));
+        int right = gp.screenWidth - gp.tileSize / 2;
+        int y = gp.tileSize / 2 + 26;
+
+        String quest = gp.questManager.trackerText();
+        if (quest != null) {
+            String label = "Quest - " + quest;
+            int x = getXforAlignText(label, right);
+            g2.setColor(new Color(0, 0, 0, 140));
+            g2.fillRoundRect(x - 14, y - 28, right - x + 28, 40, 12, 12);
+            g2.setColor(new Color(255, 225, 120));
+            g2.drawString(label, x, y);
+            y += 48;
+        }
+        if (gp.ngPlus > 0) {
+            String label = "New Game+ " + gp.ngPlus;
+            g2.setColor(new Color(0, 0, 0));
+            g2.drawString(label, getXforAlignText(label, right) + 2, y + 2);
+            g2.setColor(new Color(255, 150, 60));
+            g2.drawString(label, getXforAlignText(label, right), y);
+        }
+    }
 
     // Stamina bar under the fire seeds. Grows wider with stamina upgrades.
     public void drawStaminaBar() {

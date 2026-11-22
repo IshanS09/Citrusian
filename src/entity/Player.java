@@ -518,6 +518,7 @@ public class Player extends entity {
 
     if (gp.monster[gp.currentMap][i].life <= 0) {
         gp.monster[gp.currentMap][i].dying = true;
+        gp.questManager.onKill(gp.monster[gp.currentMap][i].name, gp.monster[gp.currentMap][i].nightBuffed);
         gp.ui.addMessage("You killed the " + gp.monster[gp.currentMap][i].name + "!");
         gp.ui.addMessage("You gained " + gp.monster[gp.currentMap][i].exp + " exp!");
         exp += gp.monster[gp.currentMap][i].exp;

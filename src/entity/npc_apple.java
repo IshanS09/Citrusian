@@ -46,6 +46,7 @@ public class npc_apple extends entity  {
         dialogues[1][3] = "The easiest one to defeat and find is Brocbrute. \nBaron Rotjaw ranks second in power among the generals. \nFinally, the most powerful and elusive of the three, the Pea King. \nAlhough, it is said he hides in plain sight.";
         dialogues[1][4] = "The keys will allow you to enter the Rotroot Dungeon where the evil \nMalibroc resides.";
         dialogues[1][5] = "Good luck on your journey, you'll need it.";
+        dialogues[1][6] = "Oh, and if you want to help out an old warrior,\ntalk to me again. I have a few jobs for you.";
 
         dialogues[0][0] = "Tents can be used to rest and recover your health and fireseed.\nYou can buy them from the Lemon merchant.";
         dialogues[0][1] = "Be careful with your fireseed, it's a precious resource.\nYou can buy a potion to restore it or simply defeat veggies.";
@@ -74,9 +75,31 @@ public class npc_apple extends entity  {
         actionLockCounter = 0;
         }
     }
+    static final int QUEST_SET = 10; // dialogue set used for quest lines
+
     public void speak() {
       
         facePlayer();
+
+        // First chat is the backstory, after that he hands out side quests
+        if (!gp.questManager.introDone) {
+            gp.questManager.introDone = true;
+            startDialogue(this, 1);
+            return;
+        }
+        String[] questLines = gp.questManager.talk();
+        if (questLines != null) {
+            java.util.Arrays.fill(dialogues[QUEST_SET], null);
+            for (int i = 0; i < questLines.length; i++) {
+                dialogues[QUEST_SET][i] = questLines[i];
+            }
+            startDialogue(this, QUEST_SET);
+            return;
+        }
+        if (dialogueSet >= QUEST_SET) {
+            dialogueSet = 0; // back to his usual tips once the quests are done
+        }
+
         startDialogue(this, dialogueSet);
 
         dialogueSet++;

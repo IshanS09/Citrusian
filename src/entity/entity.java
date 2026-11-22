@@ -94,6 +94,11 @@ public class entity {
     public boolean stunned = false;
     public int stunnedCounter = 0;
 
+    // Night and New Game+ toughness (applied by gamePanel.applyScaling)
+    public boolean nightBuffed = false;
+    public int nightBonusLife = 0;
+    public boolean ngScaled = false;
+
     public ArrayList<entity> inventory = new ArrayList<>(); 
     public final int maxInventorySize = 20;
     public int value;
@@ -225,6 +230,10 @@ public class entity {
 
     }
     public void dropItem(entity droppedItem) {
+        // Monsters out at night drop double coins
+        if(nightBuffed && "Crop Coin".equals(droppedItem.name)) {
+            droppedItem.value *= 2;
+        }
         for(int i = 0; i < gp.obj[1].length; i++) {
             if(gp.obj[gp.currentMap][i] == null) {
                 gp.obj[gp.currentMap][i] = droppedItem;
@@ -767,6 +776,11 @@ public void draw(Graphics2D g2) {
             dyingAnimation(g2);
         }
         
+        // Night monsters stand on a faint red glow so you can tell they're tougher
+        if(nightBuffed && !dying && image != null) {
+            drawNightAura(g2, tempScreenX, tempScreenY, image.getWidth(), image.getHeight());
+        }
+
         // 🖼️ Draw sprite
         g2.drawImage(image, tempScreenX, tempScreenY, null);
         
@@ -779,6 +793,15 @@ public void draw(Graphics2D g2) {
     }
 }
 
+
+    public void drawNightAura(Graphics2D g2, int x, int y, int w, int h) {
+        java.awt.Composite old = g2.getComposite();
+        float pulse = 0.35f + 0.15f * (float) Math.sin(gp.frameCount / 15.0);
+        g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, pulse));
+        g2.setColor(new Color(200, 30, 50));
+        g2.fillOval(x + w / 8, y + h * 3 / 4, w * 3 / 4, h / 5);
+        g2.setComposite(old);
+    }
 
     /** Override to swap in a different frame for special states. Default keeps the normal frame. */
     protected BufferedImage overrideImage(BufferedImage image) {

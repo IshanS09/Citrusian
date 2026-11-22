@@ -99,6 +99,11 @@ public class gamePanel extends JPanel implements Runnable {
 
     public boolean bossBattleOn = false;
 
+    // New Game+ cycle: 0 on a first playthrough, 1 after beating it once, and so on
+    public int ngPlus = 0;
+    boolean wasNight = false;
+    public QuestManager questManager = new QuestManager(this);
+
     public int currentArea;
     public int nextArea;
     public final int outside = 50;
@@ -209,6 +214,8 @@ public class gamePanel extends JPanel implements Runnable {
         data.Progress.maliBrocDefeated = false;
         data.Progress.baronRotjawDefeated = false;
         data.Progress.peaKingDefeated = false;
+        ngPlus = 0;
+        questManager.reset();
         aSetter.setObject();     
         aSetter.setNPC();   
         aSetter.setMonster();
@@ -291,9 +298,17 @@ public class gamePanel extends JPanel implements Runnable {
                 }
             }
 
+            // Night falls / day breaks messages (outside only)
+            boolean night = isNight();
+            if (night != wasNight) {
+                ui.addMessage(night ? "Night falls... the veggies grow stronger. (Double coins!)" : "The sun rises. The veggies calm down.");
+                wasNight = night;
+            }
+
             // Update monsters
             for (int i = 0; i < monster[1].length; i++) {
                 if (monster[currentMap][i] != null) {
+                    applyScaling(monster[currentMap][i], night);
                     if (monster[currentMap][i].alive && !monster[currentMap][i].dying) {
                         monster[currentMap][i].update();
                     }
@@ -585,6 +600,96 @@ public class gamePanel extends JPanel implements Runnable {
 
         currentArea = nextArea;
         aSetter.setMonster();
+    }
+
+    /**
+     * New Game+: start the story over but keep level, stats, coins, upgrades,
+     * gear and quest progress. Keys and the Helm go back, and every enemy gets
+     * tougher each cycle (see applyScaling).
+     */
+    public void startNewGamePlus() {
+        ngPlus++;
+
+        String[] storyItems = {"Gold Key", "Bronze Key", "Silver Key", "Citrusian Helm"};
+        for (String item : storyItems) {
+            int index;
+            while ((index = player.searchItemInInventory(item)) != 999) {
+                player.inventory.remove(index);
+            }
+        }
+
+        data.Progress.maliBrocDefeated = false;
+        data.Progress.baronRotjawDefeated = false;
+        data.Progress.peaKingDefeated = false;
+
+        for (int m = 0; m < maxMap; m++) {
+            java.util.Arrays.fill(obj[m], null);
+            java.util.Arrays.fill(npc[m], null);
+            java.util.Arrays.fill(monster[m], null);
+            java.util.Arrays.fill(iTile[m], null);
+            java.util.Arrays.fill(projectile[m], null);
+        }
+        particleList.clear();
+        aSetter.setObject();
+        aSetter.setNPC();
+        aSetter.setMonster();
+        aSetter.setInteractiveTile();
+        questManager.restoreQuestItems();
+
+        player.setDefaultPositions();
+        player.restoreLifeandSeed();
+        player.resetCounters();
+        playerStatus.clearEffects();
+        currentArea = outside;
+        nextArea = outside;
+        bossBattleOn = false;
+        eManager.lighting.resetDay();
+
+        csManager.sceneNum = csManager.NA;
+        csManager.scenePhase = 0;
+        gameState = playState;
+        playAreaMusic();
+        ui.addMessage("New Game+ " + ngPlus + ": the veggies are tougher now!");
+    }
+
+    /** True when it's dark outside. Dungeons and houses don't count. */
+    public boolean isNight() {
+        if (currentArea != outside || eManager.lighting == null) return false;
+        environment.Lighting l = eManager.lighting;
+        return l.dayState == l.night || (l.dayState == l.dusk && l.filterAlpha > 0.6f);
+    }
+
+    /**
+     * Makes monsters tougher for New Game+ (every cycle) and at night (regular
+     * outdoor enemies only, not bosses). Called every frame; each buff is applied once.
+     */
+    void applyScaling(entity m, boolean night) {
+        if (m.dying) return;
+
+        // New Game+: +50% health, +2 attack, +1 defense per cycle, and more exp
+        if (ngPlus > 0 && !m.ngScaled) {
+            m.maxLife = m.maxLife * (2 + ngPlus) / 2;
+            m.life = m.maxLife;
+            m.attack += 2 * ngPlus;
+            m.defense += ngPlus;
+            m.exp = m.exp * (2 + ngPlus) / 2;
+            m.ngScaled = true;
+        }
+
+        // Night: +50% health and +2 attack while it lasts
+        boolean shouldBuff = night && !m.boss;
+        if (shouldBuff && !m.nightBuffed) {
+            m.nightBonusLife = m.maxLife / 2;
+            m.maxLife += m.nightBonusLife;
+            m.life += m.nightBonusLife;
+            m.attack += 2;
+            m.nightBuffed = true;
+        } else if (!shouldBuff && m.nightBuffed) {
+            m.maxLife -= m.nightBonusLife;
+            m.life = Math.max(1, Math.min(m.life, m.maxLife));
+            m.attack -= 2;
+            m.nightBuffed = false;
+        }
     }
 
     public void removeTempEntity() {
