@@ -16,7 +16,7 @@ public class OBJ_door extends entity {
 
         type = type_obstacle;
         name = objName;
-        down1 = setup("/res/Objects/door", gp.tileSize, gp.tileSize); // Load door image
+        down1 = setup("/res/Objects/Door", gp.tileSize, gp.tileSize); // file is Door.png (case matters outside macOS/Windows)
         collision = true; // Set collision to true for the door object
 
         solidArea.x = 0;
