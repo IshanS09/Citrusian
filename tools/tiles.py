@@ -515,6 +515,187 @@ SHIP_TILES = {
 }
 
 
+# ------------------------------------------------------------ themed areas (dungeon, Malibroc, Pea King)
+def flagstones(base, seam, seed, light=None):
+    """Irregular stone slabs that tile seamlessly."""
+    rnd = random.Random(seed)
+    c = Canvas(S)
+    light = light or lighter(base, .1)
+    # slab layout on a 16x16 tile: rows of slabs with offset seams
+    rows = [(0, 5, [0, 7]), (5, 11, [3, 11]), (11, 16, [0, 6, 12])]
+    for y0, y1, cuts in rows:
+        xs = cuts + [cuts[0] + 16]
+        for i in range(len(cuts)):
+            col = mix(base, light if rnd.random() < .5 else darker(base, .2), .35)
+            for y in range(y0, y1):
+                for x in range(xs[i], xs[i + 1]):
+                    c.set(x % S, y, col, 'slab')
+            for y in range(y0, y1):
+                c.set(xs[i] % S, y, seam)
+        for x in range(S):
+            c.set(x, y0, seam)
+    for _ in range(18):
+        x, y = rnd.randrange(S), rnd.randrange(S)
+        if c.g[y][x] != seam:
+            c.set(x, y, mix(c.g[y][x], darker(base, .3), .5))
+    return c
+
+
+def wall_top(base, seed):
+    c = noisy(base, [(darker(base, .2), .2), (lighter(base, .08), .1)], seed)
+    for x in range(S):
+        c.set(x, 7, darker(base, .25))
+    for y in range(0, 7):
+        c.set(9, y, darker(base, .25))
+    for y in range(8, S):
+        c.set(3, y, darker(base, .25)); c.set(13, y, darker(base, .25))
+    return c
+
+
+def wall_face(brick, mortar, cap, seed, bands=4):
+    c = bricks(brick, darker(brick, .2), lighter(brick, .15), mortar, rows=bands, seed=seed)
+    c.rect(0, 0, S - 1, 1, cap)                      # capstone ledge where the top meets the face
+    c.rect(0, 14, S - 1, 15, darker(mortar, .3))      # shadow at the foot of the wall
+    return c
+
+
+def shadowed(c, amount=.35, rows=5):
+    for y in range(rows):
+        t = amount * (1 - y / rows)
+        for x in range(S):
+            c.set(x, y, mix(c.g[y][x], rgb('000000'), t))
+    return c
+
+
+# --- dungeon (blue-grey stone)
+D_STONE = rgb('77706a'); D_SEAM = rgb('4a4540')
+def d_wall_top(): return wall_top(rgb('33353b'), 301)
+def d_wall_face(): return wall_face(rgb('6f747d'), rgb('474a51'), rgb('2a2b30'), 302)
+def d_wall_torch():
+    c = d_wall_face()
+    o = Canvas(S)
+    o.rect(7, 8, 8, 12, rgb('5a3a22'), 'stick'); o.rect(6, 12, 9, 12, rgb('3a3a40'), 'bracket')
+    o.ellipse(7.5, 5.5, 2.5, 3.5, rgb('ff9a2a'), 'flame'); o.ellipse(7.5, 6.5, 1.3, 2, rgb('ffe08a'), 'core')
+    overlay(c, o)
+    for x, y in ((4, 3), (11, 3), (3, 6), (12, 6), (7, 1)):
+        c.set(x, y, mix(c.g[y][x], rgb('ffb04a'), .55))   # warm glow on the bricks
+    return c
+def d_floor(): return flagstones(D_STONE, D_SEAM, 311)
+def d_floor_moss():
+    c = d_floor()
+    for x, y in ((3, 2), (4, 2), (4, 3), (10, 8), (11, 8), (11, 9), (12, 9), (6, 13)):
+        c.set(x, y, rgb('5f8a48'))
+    return c
+def d_floor_crack():
+    c = flagstones(D_STONE, D_SEAM, 313)
+    c.line(3, 7, 7, 9, D_SEAM); c.line(7, 9, 9, 13, D_SEAM); c.line(7, 9, 11, 8, D_SEAM)
+    c.pts([(12, 3), (13, 3)], rgb('8a8f98')); c.set(12, 4, D_SEAM)
+    return c
+def d_floor_shadow(): return shadowed(d_floor())
+
+
+# --- Malibroc's lair (burnt garden)
+M_DIRT = rgb('5a4036'); EMBER = rgb('ff6a2a'); EMBER_HOT = rgb('ffc48a')
+def m_wall_top():
+    c = wall_top(rgb('2a2321'), 401)
+    for x, y in ((4, 3), (12, 10), (6, 12)):
+        c.set(x, y, rgb('7a2a1a'))
+    return c
+def m_wall_face():
+    c = noisy(rgb('4a3a34'), [(rgb('3a2d28'), .25), (rgb('58463e'), .12)], 402)
+    for y in (4, 9):
+        c.line(0, y, 15, y + 1, rgb('35281f'))        # rock layers
+    c.line(2, 6, 6, 7, EMBER); c.line(9, 11, 13, 12, EMBER)
+    c.rect(0, 0, S - 1, 1, rgb('1e1816')); c.rect(0, 14, S - 1, 15, rgb('241c18'))
+    return c
+def m_wall_ember():
+    c = m_wall_face()
+    c.line(5, 2, 8, 7, EMBER); c.line(8, 7, 7, 12, EMBER); c.line(8, 7, 12, 9, EMBER)
+    c.pts([(7, 6), (8, 8)], EMBER_HOT)
+    return c
+def m_floor():
+    return noisy(M_DIRT, [(rgb('47322a'), .2), (rgb('6e5a52'), .06), (rgb('2e2420'), .05)], 411)
+def m_floor_ember():
+    c = m_floor()
+    c.line(2, 4, 6, 7, EMBER); c.line(6, 7, 5, 11, EMBER); c.line(6, 7, 11, 9, EMBER); c.line(11, 9, 14, 8, EMBER)
+    c.pts([(6, 7), (5, 9), (9, 8)], EMBER_HOT)
+    return c
+def m_floor_ash():
+    c = m_floor()
+    c.ellipse(9, 9, 4, 2.6, rgb('8a8682'), 'ash'); c.shade('ash', rgb('8a8682'))
+    c.line(1, 3, 5, 5, rgb('2a1c16')); c.line(5, 5, 7, 4, rgb('2a1c16'))      # burnt root
+    return c
+def m_floor_shadow(): return shadowed(m_floor())
+
+
+# --- the Pea King's rotten throne room and swamp
+SWAMP = rgb('3e4a32'); MUD = rgb('5e4a32'); ROYAL = rgb('6a7064'); SLIME = rgb('7ac04a')
+def swamp_tree():
+    c = noisy(SWAMP, [(darker(SWAMP, .2), .2)], 501)
+    t = Canvas(S)
+    t.rect(7, 10, 9, 14, rgb('4a3a28'), 'trunk'); t.shade('trunk', rgb('4a3a28'))
+    t.ellipse(8.5, 6.5, 6.8, 5.6, rgb('4f5a2e'), 'leaf'); t.shade('leaf', rgb('4f5a2e'), hi=rgb('6a7640'), lo=rgb('343c1e'))
+    for x, y in ((4, 9), (4, 10), (12, 9), (12, 10), (12, 11), (8, 11)):
+        t.set(x, y, rgb('7a8a50'), 'moss')              # hanging moss
+    return overlay(c, t)
+def mud():
+    c = noisy(MUD, [(rgb('4c3a26'), .2), (rgb('6e5a3e'), .07)], 511)
+    c.ellipse(11, 11, 2.5, 1.5, rgb('3a2e1e')); c.pts([(10, 10)], rgb('6f7f8a'))
+    c.pts([(3, 4), (4, 4), (6, 13)], rgb('6f8a3a'))
+    return c
+def royal_floor(): return flagstones(ROYAL, rgb('454a40'), 521)
+def royal_floor_moss():
+    c = flagstones(ROYAL, rgb('454a40'), 522)
+    for x, y in ((2, 3), (3, 3), (3, 4), (9, 9), (10, 9), (10, 10), (13, 13), (5, 12)):
+        c.set(x, y, rgb('6f9a45'))
+    return c
+def rot_wall():
+    c = royal_floor()
+    r = Canvas(S)
+    r.poly([(0.5, 15.5), (2, 5), (6, 1.5), (11, 2.5), (15, 7), (15.5, 15.5)], rgb('4e5650'), 'rock')
+    r.shade('rock', rgb('4e5650'), hi=rgb('6a736c'), lo=rgb('343a36'))
+    for x, y in ((5, 3), (6, 3), (10, 4), (3, 8), (12, 9), (7, 6)):
+        r.set(x, y, rgb('6f9a45'), 'moss')
+    r.pts([(9, 10), (9, 11), (9, 12)], SLIME, 'drip')
+    return overlay(c, r)
+def carpet():
+    c = noisy(rgb('5a2a6a'), [(rgb('4a2058'), .15)], 531)
+    for x, y in ((3, 3), (11, 3), (7, 7), (3, 11), (11, 11)):
+        c.set(x, y, rgb('e8b931')); c.set(x + 1, y, rgb('b8871c'))
+    return c
+def pillar():
+    c = royal_floor()
+    o = Canvas(S)
+    o.ellipse(8, 13, 6, 2.5, rgb('2e322c'), 'shadow')
+    o.ellipse(8, 8, 6, 6, rgb('8a9084'), 'col'); o.shade('col', rgb('8a9084'), hi=rgb('a9b0a2'), lo=rgb('5e645a'))
+    o.ellipse(8, 8, 3.4, 3.4, rgb('9aa094'), 'top')
+    for x, y in ((4, 5), (5, 4), (11, 10), (12, 9), (9, 12)):
+        o.set(x, y, rgb('6f9a45'), 'moss')
+    return overlay(c, o)
+def slime_puddle():
+    c = royal_floor()
+    o = Canvas(S)
+    o.ellipse(8, 8.5, 6.5, 5, SLIME, 'slime'); o.shade('slime', SLIME, hi=rgb('a8e070'), lo=rgb('4f8a2e'))
+    o.ellipse(5.5, 7, 1.2, 1.2, rgb('c9f0a0')); o.ellipse(10.5, 10, 1, 1, rgb('c9f0a0'))
+    o.ellipse(10, 6, 1.6, 1.4, rgb('5a9a34'))
+    return overlay(c, o)
+def swamp_grass():
+    c = noisy(rgb('55703a'), [(rgb('46602e'), .2), (rgb('6a8a48'), .07)], 541)
+    for bx, by in ((3, 4), (11, 2), (7, 10), (13, 12)):
+        c.pts([(bx, by), (bx + 1, by - 1), (bx + 2, by)], rgb('3a5228'))
+    return c
+
+
+AREA_TILES = {
+    'd_wall_top': d_wall_top, 'd_wall_face': d_wall_face, 'd_wall_torch': d_wall_torch,
+    'd_floor': d_floor, 'd_floor_moss': d_floor_moss, 'd_floor_crack': d_floor_crack, 'd_floor_shadow': d_floor_shadow,
+    'm_wall_top': m_wall_top, 'm_wall_face': m_wall_face, 'm_wall_ember': m_wall_ember,
+    'm_floor': m_floor, 'm_floor_ember': m_floor_ember, 'm_floor_ash': m_floor_ash, 'm_floor_shadow': m_floor_shadow,
+    'swamp_tree': swamp_tree, 'mud': mud, 'royal_floor': royal_floor, 'royal_floor_moss': royal_floor_moss,
+    'rot_wall': rot_wall, 'carpet': carpet, 'pillar': pillar, 'slime_puddle': slime_puddle, 'swamp_grass': swamp_grass,
+}
+
+
 TILES = {
     'grass': grass, 'flower': lambda: flowers(1), 'flower2': lambda: flowers(2), 'tree': tree,
     'mountain': mountain, 'road00': sand, 'path': path, 'dirt': dirt, 'bridge': bridge,
@@ -526,6 +707,7 @@ TILES = {
     'stairsdown': lambda: stairs(True), 'stairsup': lambda: stairs(False), 'void': void,
 }
 TILES.update(SHIP_TILES)
+TILES.update(AREA_TILES)
 INTERACTIVE = {'treedry': dry_tree, 'trunk': trunk, 'destructibleWall': destructible_wall, 'metalPlate': metal_plate}
 
 

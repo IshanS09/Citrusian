@@ -13,12 +13,13 @@ import main.gamePanel;
 public class tileManager {
     gamePanel gp; 
     public Tile[] tile;
+    public static final int SLIME_PUDDLE = 63; // slows the player (see Player.update)
     public int mapTileNum[][][]; // 2D array to hold tile numbers
     boolean drawPath = false; // Flag to control path drawing
 
     public tileManager(gamePanel gp) {
         this.gp = gp;
-        tile = new Tile[50]; // Adjust size as needed
+        tile = new Tile[100]; // room for the themed area tiles
         mapTileNum = new int[gp.maxMap][gp.maxWorldCol][gp.maxWorldRow]; // Initialize the 2D array
 
         getTileImage();
@@ -76,6 +77,35 @@ public class tileManager {
             setup(39, "gangplank", false);
             setup(40, "pier", false);
             setup(41, "water_foam", true);
+
+            // The dungeon (dungeonFIN)
+            setup(42, "d_wall_top", true);
+            setup(43, "d_wall_face", true);
+            setup(44, "d_wall_torch", true);
+            setup(45, "d_floor", false);
+            setup(46, "d_floor_moss", false);
+            setup(47, "d_floor_crack", false);
+            setup(48, "d_floor_shadow", false);
+
+            // Malibroc's lair (dungeonL2)
+            setup(49, "m_wall_top", true);
+            setup(50, "m_wall_face", true);
+            setup(51, "m_wall_ember", true);
+            setup(52, "m_floor", false);
+            setup(53, "m_floor_ember", false);
+            setup(54, "m_floor_ash", false);
+            setup(55, "m_floor_shadow", false);
+
+            // The Pea King's throne room (interiorPK3)
+            setup(56, "swamp_tree", true);
+            setup(57, "mud", false);
+            setup(58, "royal_floor", false);
+            setup(59, "royal_floor_moss", false);
+            setup(60, "rot_wall", true);
+            setup(61, "carpet", false);
+            setup(62, "pillar", true);
+            setup(SLIME_PUDDLE, "slime_puddle", false);
+            setup(64, "swamp_grass", false);
             
     }
     public void setup(int index, String imageName, boolean collision) {

@@ -514,6 +514,8 @@ public class gamePanel extends JPanel implements Runnable {
                 eManager.draw(g2);
             }
 
+            drawRageTint(g2);
+
             // Draw cutscenes in scaled context (they'll cover the full game area)
             csManager.draw(g2);
 
@@ -540,6 +542,21 @@ public class gamePanel extends JPanel implements Runnable {
         }
         
         g2.dispose();
+    }
+
+    /** In phase 2, Malibroc's lair glows a pulsing red. */
+    void drawRageTint(Graphics2D g2) {
+        if (currentMap != 3 || !bossBattleOn) return;
+        for (entity m : monster[3]) {
+            if (m instanceof monster.MON_BossBroccoli && m.inRage && !m.dying) {
+                float a = 0.10f + 0.06f * (float) Math.sin(frameCount / 10.0);
+                g2.setComposite(java.awt.AlphaComposite.getInstance(java.awt.AlphaComposite.SRC_OVER, a));
+                g2.setColor(new java.awt.Color(255, 40, 20));
+                g2.fillRect(0, 0, screenWidth, screenHeight);
+                g2.setComposite(java.awt.AlphaComposite.getInstance(java.awt.AlphaComposite.SRC_OVER, 1f));
+                return;
+            }
+        }
     }
 
     public void playMusic(int i) {

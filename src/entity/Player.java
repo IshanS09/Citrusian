@@ -390,6 +390,14 @@ public class Player extends entity {
 }
         updateStamina();
 
+        // Slime puddles in the Pea King's room stick to your feet
+        int footCol = (worldX + solidArea.x + solidArea.width / 2) / gp.tileSize;
+        int footRow = (worldY + solidArea.y + solidArea.height / 2) / gp.tileSize;
+        if (footCol >= 0 && footRow >= 0 && footCol < gp.maxWorldCol && footRow < gp.maxWorldRow
+                && gp.tileM.mapTileNum[gp.currentMap][footCol][footRow] == tile.tileManager.SLIME_PUDDLE) {
+            gp.playerStatus.applySlow(20, "Sticky slime! (slowed)");
+        }
+
         if (invincible) {
             invincibleCounter++;
             if (invincibleCounter > 60) {

@@ -174,8 +174,13 @@ public class PlayerStatus {
     // ===== TEAR GAS (Weeping Onion) =====
     /** Called every frame the player stands in a cloud; keeps the slow going a bit after leaving. */
     public void applyTearGas(int frames) {
+        applySlow(frames, "Your eyes are watering! (slowed)");
+    }
+
+    /** Slows walking to half speed for a while. The message shows when the slow starts. */
+    public void applySlow(int frames, String message) {
         if(tearGasTimer == 0) {
-            gp.ui.addMessage("Your eyes are watering! (slowed)");
+            gp.ui.addMessage(message);
         }
         tearGasTimer = Math.max(tearGasTimer, frames);
     }
