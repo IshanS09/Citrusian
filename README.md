@@ -15,5 +15,31 @@ Play as the **Lone Orange**, a resilient survivor on the Isle of Nectar. The Rot
 - Tile-based rendering, collision detection, entity system
 - Custom pixel art and original soundtrack
 
+## Controls
+| Key | Action |
+|---|---|
+| W A S D | Move (and move through menus) |
+| Enter | Attack, talk, confirm, use selected item |
+| Space | Guard with shield (time it right to parry) |
+| F | Shoot fire seed |
+| Shift | Dash (uses a Dash item) |
+| C | Open or close the character and inventory screen |
+| O | Save the game |
+| Esc | Options |
+| T | Toggle full screen |
+
+## Build and Run
+You need Java 17 or newer (JDK). From the repo root:
+
+```bash
+javac -d bin $(find src -name "*.java")
+cp -r src/res bin/
+java -cp bin main.Main
+```
+
+On Windows PowerShell, compile with `javac -d bin (Get-ChildItem -Recurse src -Filter *.java).FullName`, then copy `src\res` into `bin\` and run the same `java` command.
+
+The game writes `save.dat` to the folder you run it from.
+
 ## Download
 Play on itch.io: [ishans09.itch.io/citrusian](https://ishans09.itch.io/citrusian)
