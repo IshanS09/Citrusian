@@ -11,6 +11,7 @@ Play as the **Lone Orange**, a resilient survivor on the Isle of Nectar. The Rot
 - Charged attacks that change by weapon: swords lunge, axes knock enemies back harder, pickaxes hit a wider area
 - A stamina bar for dashing, guarding and charged attacks
 - Spend Crop Coins at the merchant on upgrades: more fire seeds, more stamina, easier parries, gear repair
+- A bigger world: sail east to Zest Harbor, heal at the spring in the Citrus Grove, and brave the Rotting Marsh for its treasure
 - Watch out for the Weeping Onion's tear gas and the Spud Brute's charge
 - Veggies get tougher at night but drop double coins
 - Side quests from the old apple, with a hidden Golden Seed and a sword you can't buy

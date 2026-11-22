@@ -76,32 +76,55 @@ def face(c, view, mood='happy'):
 
 
 # ---------------------------------------------------------------- weapons
-def draw_weapon(c, kind, hx, hy, ang, length=10):
+# Colors for each weapon/shield, keyed by sprite prefix. The first entry of each
+# kind keeps the original file names (Attack, AttackAxe, AttackPic, guard).
+WEAPONS = {
+    # prefix:        (kind,      blade/head,      highlight,        shade,           handle,          guard)
+    'Attack':        ('sword',   STEEL,           WHITE,            STEEL_D,         HANDLE,          GOLD),
+    'AttackBanana':  ('sword',   rgb('ffd54f'),   rgb('fff3b0'),    rgb('d9a520'),   rgb('3f8f3a'),   rgb('6d4c2f')),
+    'AttackLime':    ('sword',   rgb('96d84a'),   rgb('e3ffb8'),    rgb('4f9a28'),   HANDLE,          rgb('c8e65a')),
+    'AttackAxe':     ('axe',     IRON,            lighter(IRON, .45), darker(IRON, .3), HANDLE,       None),
+    'AttackMelon':   ('axe',     rgb('e84a5f'),   rgb('ff8a9a'),    rgb('3f8f3a'),   HANDLE,          None),
+    'AttackPic':     ('pickaxe', IRON,            lighter(IRON, .45), darker(IRON, .3), rgb('b5a03a'), None),
+    'AttackPine':    ('pickaxe', rgb('f2c43a'),   rgb('fff1a8'),    rgb('b8871c'),   HANDLE,          None),
+}
+SHIELDS = {
+    # prefix:        (face,            rim)
+    'guard':         (SHIELD,          RIM),
+    'guardBlue':     (rgb('3b6fd1'),   RIM),
+    'guardStraw':    (rgb('e53935'),   RIM),
+    'guardGrape':    (rgb('6a3d9a'),   GOLD),
+    'guardDragon':   (rgb('e0408a'),   RIM),
+}
+
+
+def draw_weapon(c, kind, hx, hy, ang, length=10, pal=None):
     """Weapon held at (hx, hy) pointing at angle ang (degrees, 0 = right, 90 = down)."""
     dx, dy = math.cos(math.radians(ang)), math.sin(math.radians(ang))
     px, py = -dy, dx                                      # perpendicular
     tx, ty = round(hx + dx * length), round(hy + dy * length)
+    metal, hi, lo, handle, guard = pal if pal else (STEEL, WHITE, STEEL_D, HANDLE, GOLD)
     if kind == 'sword':
         gx, gy = round(hx + dx * 2), round(hy + dy * 2)
-        c.line(hx, hy, gx, gy, HANDLE, 'w_handle')
-        c.line(gx, gy, tx, ty, STEEL, 'w_blade', width=2 if abs(dx) < .3 or abs(dy) < .3 else 1)
-        c.line(round(gx + px * 2), round(gy + py * 2), round(gx - px * 2), round(gy - py * 2), GOLD, 'w_guard')
-        c.shade('w_blade', STEEL, hi=WHITE, lo=STEEL_D)
+        c.line(hx, hy, gx, gy, handle, 'w_handle')
+        c.line(gx, gy, tx, ty, metal, 'w_blade', width=2 if abs(dx) < .3 or abs(dy) < .3 else 1)
+        c.line(round(gx + px * 2), round(gy + py * 2), round(gx - px * 2), round(gy - py * 2), guard, 'w_guard')
+        c.shade('w_blade', metal, hi=hi, lo=lo)
     elif kind == 'axe':
-        c.line(hx, hy, tx, ty, HANDLE, 'w_handle', width=1)
+        c.line(hx, hy, tx, ty, handle, 'w_handle', width=1)
         bx, by = tx - dx * 2, ty - dy * 2
         c.poly([(bx + px * .5, by + py * .5), (bx + px * 4.5 - dx * 1.5, by + py * 4.5 - dy * 1.5),
-                (bx + px * 4.5 + dx * 3, by + py * 4.5 + dy * 3), (bx + dx * 2.5, by + dy * 2.5)], IRON, 'w_head')
-        c.shade('w_head', IRON, hi=lighter(IRON, .4))
+                (bx + px * 4.5 + dx * 3, by + py * 4.5 + dy * 3), (bx + dx * 2.5, by + dy * 2.5)], metal, 'w_head')
+        c.shade('w_head', metal, hi=hi, lo=lo)
     else:  # pickaxe: curved head across the end of the handle
-        c.line(hx, hy, tx, ty, HANDLE, 'w_handle', width=1)
+        c.line(hx, hy, tx, ty, handle, 'w_handle', width=1)
         for t in range(-5, 6):
             bend = abs(t) * .35
             x = round(tx + px * t - dx * bend)
             y = round(ty + py * t - dy * bend)
-            c.set(x, y, IRON, 'w_head')
-        c.shade('w_head', IRON, hi=lighter(IRON, .4))
-    c.shade('w_handle', HANDLE)
+            c.set(x, y, metal, 'w_head')
+        c.shade('w_head', metal, hi=hi, lo=lo)
+    c.shade('w_handle', handle)
 
 
 # Hand position and weapon angle per (view, frame) for attacks
@@ -112,18 +135,20 @@ ATTACK = {
 }
 
 
-def player(view, pose, frame, weapon='sword'):
+def player(view, pose, frame, weapon='sword', pal=None, shield=(SHIELD, RIM)):
     c = Canvas(32)
     step = frame == 2 and pose == 'walk'
+    if pose == 'idle':
+        return idle(view, frame)
     if pose == 'attack':
         (hx, hy), ang = ATTACK[(view, frame)]
         behind = view == 'up' and frame == 1
         if behind:
-            draw_weapon(c, weapon, hx, hy, ang)
+            draw_weapon(c, weapon, hx, hy, ang, pal=pal)
         body(c, view, False)
         arms(c, view, False, raise_right=(hx, hy))
         if not behind:
-            draw_weapon(c, weapon, hx, hy, ang)
+            draw_weapon(c, weapon, hx, hy, ang, pal=pal)
         c.outline()
         face(c, view, mood='focused')
         return c
@@ -136,9 +161,10 @@ def player(view, pose, frame, weapon='sword'):
             sx, sy, rx, ry = 16, 5, 6.5, 3
         else:
             sx, sy, rx, ry = 8, 14, 3, 7
-        c.ellipse(sx, sy, rx, ry, RIM, 'rim')
-        c.ellipse(sx, sy, rx - 1.2, ry - 1.2, SHIELD, 'shield')
-        c.shade('shield', SHIELD); c.shade('rim', RIM, hi=WHITE)
+        face_col, rim_col = shield
+        c.ellipse(sx, sy, rx, ry, rim_col, 'rim')
+        c.ellipse(sx, sy, rx - 1.2, ry - 1.2, face_col, 'shield')
+        c.shade('shield', face_col); c.shade('rim', rim_col, hi=WHITE)
         c.set(int(sx), int(sy), GOLD, 'boss')
         c.outline()
         if view == 'left':
@@ -153,6 +179,38 @@ def player(view, pose, frame, weapon='sword'):
     c.outline()
     face(c, view)
     return c
+
+
+def idle(view, frame):
+    c = Canvas(32)
+    body(c, view, False)
+    arms(c, view, False)
+    c.outline()
+    if frame == 1:
+        face(c, view)
+        return c
+    # breathe out: everything above the boots sinks one pixel, and the eyes close
+    out = Canvas(32)
+    for y in range(32):
+        for x in range(32):
+            if c.g[y][x] == T:
+                continue
+            ny = y + 1 if y < 20 else y
+            if ny < 32:
+                out.set(x, ny, c.g[y][x])
+    for y in range(20, 22):
+        for x in range(32):
+            if out.g[y][x] == T and c.g[y][x] != T:
+                out.set(x, y, c.g[y][x])
+    if view == 'down':
+        for ex in (13, 18):
+            out.pts([(ex, 13), (ex + 1, 13)], K)          # closed eyes
+        out.pts([(14, 16), (15, 17), (16, 17), (17, 16)], K)
+        out.pts([(11, 15), (21, 15)], rgb('f47e5a'))
+    elif view == 'left':
+        out.pts([(11, 13), (12, 13)], K)
+        out.pts([(10, 16), (11, 17), (12, 17)], K)
+    return out
 
 
 # ---------------------------------------------------------------- projectiles
@@ -207,14 +265,17 @@ def build(out_player, out_proj):
     for f in (1, 2):
         for view, nm in names.items():
             made[f'Orange{nm}{f}'] = player(view, 'walk', f)
-            for weapon, pre in (('sword', 'Attack'), ('axe', 'AttackAxe'), ('pickaxe', 'AttackPic')):
-                made[f'{pre}{nm}{f}'] = player(view, 'attack', f, weapon)
+            made[f'OrangeIdle{nm}{f}'] = player(view, 'idle', f)
+            for pre, (kind, *pal) in WEAPONS.items():
+                made[f'{pre}{nm}{f}'] = player(view, 'attack', f, kind, pal=tuple(pal))
         made[f'OrangeRight{f}'] = made[f'OrangeLeft{f}'].mirrored()
-        for pre in ('Attack', 'AttackAxe', 'AttackPic'):
+        made[f'OrangeIdleRight{f}'] = made[f'OrangeIdleLeft{f}'].mirrored()
+        for pre in WEAPONS:
             made[f'{pre}Right{f}'] = made[f'{pre}Left{f}'].mirrored()
-    for view, nm in names.items():
-        made[f'guard{nm}'] = player(view, 'guard', 1)
-    made['guardRight'] = made['guardLeft'].mirrored()
+    for pre, colors in SHIELDS.items():
+        for view, nm in names.items():
+            made[f'{pre}{nm}'] = player(view, 'guard', 1, shield=colors)
+        made[f'{pre}Right'] = made[f'{pre}Left'].mirrored()
     for name, cv in made.items():
         cv.save(os.path.join(out_player, name + '.png'))
 

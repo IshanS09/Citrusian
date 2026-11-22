@@ -71,6 +71,13 @@ public class AssetSetter {
         gp.obj[mapNum][i].worldY = 62 * gp.tileSize;
         i++;
 
+        // Treasure at the far end of the Rotting Marsh
+        gp.obj[mapNum][i] = new OBJ_Chest(gp);
+        gp.obj[mapNum][i].setLoot(new object.OBJ_shield_dragonfruit(gp));
+        gp.obj[mapNum][i].worldX = 28 * gp.tileSize;
+        gp.obj[mapNum][i].worldY = 127 * gp.tileSize;
+        i++;
+
         mapNum = 2;
         i = 0;
         
@@ -236,6 +243,7 @@ public class AssetSetter {
         // Fixed slots 11-15 so the respawn checks know where to look.
         spawnOnions(mapNum);
         spawnPotatoes(mapNum);
+        spawnMarsh(mapNum);
        
         mapNum = 2;
         i++;
@@ -563,6 +571,38 @@ public void spawnPotatoes(int mapNum) {
         potato.worldY = gp.tileSize * POTATO_SPAWNS[i][1];
         gp.monster[mapNum][POTATO_FIRST_SLOT + i] = potato;
     }
+}
+
+// Rotting Marsh: 3 onions (slots 16-18) and 2 potatoes (slots 19-20)
+static final int MARSH_FIRST_SLOT = 16;
+static final int[][] MARSH_ONIONS = { {22, 113}, {33, 110}, {48, 113} };
+static final int[][] MARSH_POTATOES = { {50, 124}, {40, 128} };
+
+public void spawnMarsh(int mapNum) {
+    if(mapNum != MAIN_MAP_ID) return;
+    int slot = MARSH_FIRST_SLOT;
+    for (int[] p : MARSH_ONIONS) {
+        MON_Onion onion = new MON_Onion(gp);
+        onion.worldX = gp.tileSize * p[0];
+        onion.worldY = gp.tileSize * p[1];
+        gp.monster[mapNum][slot++] = onion;
+    }
+    for (int[] p : MARSH_POTATOES) {
+        MON_Potato potato = new MON_Potato(gp);
+        potato.worldX = gp.tileSize * p[0];
+        potato.worldY = gp.tileSize * p[1];
+        gp.monster[mapNum][slot++] = potato;
+    }
+}
+
+public boolean allMarshDead(int mapNum) {
+    if(mapNum != MAIN_MAP_ID) return false;
+    int count = MARSH_ONIONS.length + MARSH_POTATOES.length;
+    for (int i = MARSH_FIRST_SLOT; i < MARSH_FIRST_SLOT + count; i++) {
+        entity e = gp.monster[mapNum][i];
+        if (e != null && e.alive && !e.dying) return false;
+    }
+    return true;
 }
 
 public boolean allOnionsDead(int mapNum) {

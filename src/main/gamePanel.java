@@ -25,8 +25,8 @@ public class gamePanel extends JPanel implements Runnable {
     public final int maxScreenRow = 14;
     public final int screenWidth = tileSize * maxScreenCol; // 768 pixels wide
     public final int screenHeight = tileSize * maxScreenRow; // 576 pixels tall
-    public final int maxWorldCol = 100; // 100 tiles across in the world
-    public final int maxWorldRow = 100; // 100 tiles down in the world
+    public final int maxWorldCol = 140; // 140 tiles across (grown east for Zest Harbor and Citrus Grove)
+    public final int maxWorldRow = 140; // 140 tiles down (grown south for the Rotting Marsh)
     public final int maxMap = 10;
     public int currentMap = 0;  
 
@@ -67,6 +67,7 @@ public class gamePanel extends JPanel implements Runnable {
     // Onions and potatoes come back 10 seconds after the whole group is beaten
     int onionRespawnCounter = 0;
     int potatoRespawnCounter = 0;
+    int marshRespawnCounter = 0;
     static final int NEW_ENEMY_RESPAWN_FRAMES = 600;
 
     public int frameCount = 0;
@@ -381,6 +382,14 @@ public class gamePanel extends JPanel implements Runnable {
                 }
             } else {
                 onionRespawnCounter = 0;
+            }
+            if (aSetter.allMarshDead(currentMap)) {
+                if (++marshRespawnCounter >= NEW_ENEMY_RESPAWN_FRAMES) {
+                    aSetter.spawnMarsh(currentMap);
+                    marshRespawnCounter = 0;
+                }
+            } else {
+                marshRespawnCounter = 0;
             }
             if (aSetter.allPotatoesDead(currentMap)) {
                 if (++potatoRespawnCounter >= NEW_ENEMY_RESPAWN_FRAMES) {

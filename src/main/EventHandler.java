@@ -58,6 +58,7 @@ public class EventHandler {
         else if(hit(2,28,28,"any") == true) {teleport(3, 56,61, gp.dungeon);}
         else if(hit(3,55,61,"any") == true) {teleport(2, 28,29, gp.dungeon);}
         else if(hit(0,63,33,"any") == true) {healingPool();}
+        else if(hit(0,112,115,"any") == true) {healingPool();}   // spring in the Citrus Grove
         else if(hit(3,57,47,"up") == true) {maliBroc();}
         else if(hit(0,77,16,"any") == true) {teleport(4,50,63, gp.outside);}
         else if(hit(4,50,64,"any") == true) {teleport(0,77,17, gp.outside);}

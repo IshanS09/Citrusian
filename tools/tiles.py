@@ -696,6 +696,98 @@ AREA_TILES = {
 }
 
 
+# ------------------------------------------------------------ expansion: Zest Harbor, Rotting Marsh, Citrus Grove
+def cobble():
+    c = cobbles(seed=601)
+    for x, y in ((2, 9), (12, 4)):
+        c.set(x, y, rgb('6f8a45'))
+    return c
+
+
+def orange_tree():
+    c = grass(seed=611)
+    c.ellipse(8.5, 13.5, 5.5, 2, mix(GRASS_D, K, .25))
+    t = Canvas(S)
+    t.rect(7, 10, 9, 14, TRUNK, 'trunk'); t.shade('trunk', TRUNK)
+    t.ellipse(8.5, 6.5, 6.8, 5.8, rgb('3f8f3c'), 'leaf'); t.shade('leaf', rgb('3f8f3c'), hi=LEAF_L, lo=LEAF_D)
+    overlay(c, t)
+    for x, y in ((5, 4), (10, 3), (12, 7), (6, 8), (9, 6)):
+        c.pts([(x, y), (x + 1, y)], rgb('f39a1e')); c.set(x, y - 1 if y > 0 else y, rgb('ffc46a'))
+    return c
+
+
+def fence():
+    c = grass(seed=621)
+    f = Canvas(S)
+    f.rect(0, 6, 15, 7, rgb('a8784a'), 'rail'); f.rect(0, 10, 15, 11, rgb('a8784a'), 'rail')
+    for x in (2, 13):
+        f.rect(x, 4, x + 1, 13, rgb('8a5a36'), 'post')
+    f.shade('rail', rgb('a8784a')); f.shade('post', rgb('8a5a36'))
+    return overlay(c, f)
+
+
+def market_stall():
+    c = cobble()
+    m = Canvas(S)
+    m.rect(1, 7, 14, 14, rgb('a8784a'), 'table'); m.shade('table', rgb('a8784a'))
+    for i, col in enumerate((rgb('f39a1e'), rgb('ffd23f'), rgb('e53935'), rgb('96d84a'))):
+        m.ellipse(3.5 + i * 3, 9.5, 1.4, 1.4, col, 'fruit%d' % i)
+    for x in range(1, 15):
+        m.rect(x, 1, x, 5, rgb('e53935') if (x // 2) % 2 == 0 else rgb('f5f5f5'), 'awning')
+    m.shade('awning', rgb('e53935'))
+    return overlay(c, m)
+
+
+def well():
+    c = cobble()
+    w = Canvas(S)
+    w.ellipse(8, 9, 6.5, 5.5, STONE, 'ring'); w.shade('ring', STONE, hi=STONE_L, lo=STONE_D)
+    w.ellipse(8, 9, 4, 3.2, rgb('1f4f7a'), 'water')
+    w.pts([(6, 8), (7, 8)], rgb('7fbdf0'), 'water')
+    w.rect(1, 1, 2, 9, rgb('7a4a28'), 'post'); w.rect(13, 1, 14, 9, rgb('7a4a28'), 'post')
+    w.rect(1, 1, 14, 2, rgb('b7463a'), 'roof'); w.shade('roof', rgb('b7463a'))
+    return overlay(c, w)
+
+
+def boat():
+    c = water(0)
+    b = Canvas(S)
+    b.poly([(1, 8), (4, 4), (12, 4), (15, 8), (12, 12), (4, 12)], rgb('8a5a36'), 'hull'); b.shade('hull', rgb('8a5a36'))
+    b.poly([(3, 8), (5, 6), (11, 6), (13, 8), (11, 10), (5, 10)], rgb('b07a42'), 'deck')
+    b.line(5, 7, 11, 7, rgb('8a5a36'), 'deck'); b.line(5, 9, 11, 9, rgb('8a5a36'), 'deck')
+    return overlay(c, b)
+
+
+def swamp_water():
+    c = noisy(rgb('3f5a48'), [(rgb('35503e'), .18), (rgb('56735c'), .08)], 631)
+    c.pts([(4, 4), (5, 4), (11, 10), (12, 10)], rgb('7a9a7a'))
+    return c
+
+
+def lily_water():
+    c = swamp_water()
+    for cx, cy in ((5, 5), (11, 11)):
+        c.ellipse(cx, cy, 2.6, 2.2, rgb('5cae4a'), 'pad'); c.shade('pad', rgb('5cae4a'))
+        c.set(cx, cy - 2, rgb('3f5a48'))
+    c.pts([(11, 4), (12, 3), (12, 4)], rgb('f2a0c8'))
+    return c
+
+
+def reeds():
+    c = swamp_grass()
+    for x in (3, 6, 9, 12):
+        h = 6 + (x % 3)
+        c.line(x, 15, x, 15 - h, rgb('6a8a3a'))
+        c.rect(x, 15 - h, x, 15 - h + 1, rgb('6d4c2f'))
+    return c
+
+
+EXPANSION_TILES = {
+    'cobble': cobble, 'orange_tree': orange_tree, 'fence': fence, 'market_stall': market_stall,
+    'well': well, 'boat': boat, 'swamp_water': swamp_water, 'lily_water': lily_water, 'reeds': reeds,
+}
+
+
 TILES = {
     'grass': grass, 'flower': lambda: flowers(1), 'flower2': lambda: flowers(2), 'tree': tree,
     'mountain': mountain, 'road00': sand, 'path': path, 'dirt': dirt, 'bridge': bridge,
@@ -708,6 +800,7 @@ TILES = {
 }
 TILES.update(SHIP_TILES)
 TILES.update(AREA_TILES)
+TILES.update(EXPANSION_TILES)
 INTERACTIVE = {'treedry': dry_tree, 'trunk': trunk, 'destructibleWall': destructible_wall, 'metalPlate': metal_plate}
 
 

@@ -106,6 +106,18 @@ public class tileManager {
             setup(62, "pillar", true);
             setup(SLIME_PUDDLE, "slime_puddle", false);
             setup(64, "swamp_grass", false);
+
+            // Expansion: Zest Harbor, Citrus Grove, Rotting Marsh
+            setup(65, "cobble", false);
+            setup(66, "orange_tree", true);
+            setup(67, "fence", true);
+            setup(68, "market_stall", true);
+            setup(69, "well", true);
+            setup(70, "boat", true);
+            setup(71, "swamp_water", true);
+            setup(72, "lily_water", true);
+            setup(73, "reeds", false);
+            setup(74, "house", true);      // cottages in town (the walkable 8 is a doorway elsewhere)
             
     }
     public void setup(int index, String imageName, boolean collision) {
@@ -165,32 +177,20 @@ public void loadMap(String filePath, int map) {
 
 
     public void draw(Graphics2D g2) {
-        int worldCol = 0;
-        int worldRow = 0;
-        
-        while (worldCol < gp.maxWorldCol && worldRow < gp.maxWorldRow) {
-            int tileNum = mapTileNum[gp.currentMap][worldCol][worldRow]; // Get the tile number from the 3D array
-            
-            int worldX = worldCol * gp.tileSize; // Calculate the world X position
-            int worldY = worldRow * gp.tileSize; // Calculate the world Y position
-            int screenX = worldX - gp.player.worldX + gp.player.screenX; // Calculate the screen X position
-            int screenY = worldY - gp.player.worldY + gp.player.screenY; // Calculate the screen Y position
-            
-            if (worldX + gp.tileSize > gp.player.worldX - gp.player.screenX && 
-                worldX - gp.tileSize < gp.player.worldX + gp.player.screenX &&
-                worldY + gp.tileSize > gp.player.worldY - gp.player.screenY && 
-                worldY - gp.tileSize < gp.player.worldY + gp.player.screenY) {
-                // Only draw the tile if it's within the player's view
-                g2.drawImage(tile[tileNum].image, screenX, screenY, null);
-            }
+        // Only walk the tiles that can be on screen (plus a one-tile margin)
+        int firstCol = Math.max(0, (gp.player.worldX - gp.player.screenX) / gp.tileSize - 1);
+        int firstRow = Math.max(0, (gp.player.worldY - gp.player.screenY) / gp.tileSize - 1);
+        int lastCol = Math.min(gp.maxWorldCol - 1, firstCol + gp.maxScreenCol + 3);
+        int lastRow = Math.min(gp.maxWorldRow - 1, firstRow + gp.maxScreenRow + 3);
 
-            
-            worldCol++;
-            
-            if (worldCol == gp.maxWorldCol) {
-                worldCol = 0;
-                worldRow++;
-                
+        for (int worldRow = firstRow; worldRow <= lastRow; worldRow++) {
+            for (int worldCol = firstCol; worldCol <= lastCol; worldCol++) {
+                int tileNum = mapTileNum[gp.currentMap][worldCol][worldRow];
+                int worldX = worldCol * gp.tileSize;
+                int worldY = worldRow * gp.tileSize;
+                int screenX = worldX - gp.player.worldX + gp.player.screenX;
+                int screenY = worldY - gp.player.worldY + gp.player.screenY;
+                g2.drawImage(tile[tileNum].image, screenX, screenY, null);
             }
         }
 

@@ -7,6 +7,7 @@ import java.awt.image.BufferedImage;
 import main.gamePanel;
 import main.keyHandler;
 import object.OBJ_FireSeed;
+import object.OBJ_picaxe;
 import object.OBJ_shield_default;
 import object.OBJ_sword_default;
 
@@ -70,6 +71,7 @@ public class Player extends entity {
         getImage(); 
         getAttackImage(); 
         getGuardImage();
+        getIdleImage();
         setItems(); 
     }
 
@@ -106,6 +108,7 @@ public class Player extends entity {
         getImage(); 
         getAttackImage(); 
         getGuardImage();
+        getIdleImage();
         setItems(); 
         setDialogue();
 
@@ -139,6 +142,7 @@ public class Player extends entity {
         inventory.clear();
         inventory.add(currentWeapon); 
         inventory.add(currentSHield);
+        inventory.add(new OBJ_picaxe(gp));
     }
     public int getAttack() {
         attackArea = currentWeapon.attackArea;
@@ -188,47 +192,71 @@ public class Player extends entity {
         right1 = image;
         right2 = image;
     }
+    /** Picks the swing sprites that match the equipped weapon's colors. */
     public void getAttackImage() {
-        if(currentWeapon.type == type_sword) {
-        AttackUp1 = setup("/res/player/AttackUp1", gp.tileSize, gp.tileSize); 
-        AttackUp2 = setup("/res/player/AttackUp2", gp.tileSize, gp.tileSize); 
-        AttackDown1 = setup("/res/player/AttackDown1", gp.tileSize, gp.tileSize);
-        AttackDown2 = setup("/res/player/AttackDown2", gp.tileSize, gp.tileSize);
-        AttackLeft1 = setup("/res/player/AttackLeft1", gp.tileSize , gp.tileSize); 
-        AttackLeft2 = setup("/res/player/AttackLeft2", gp.tileSize , gp.tileSize); 
-        AttackRight1 = setup("/res/player/AttackRight1", gp.tileSize, gp.tileSize);
-        AttackRight2 = setup("/res/player/AttackRight2", gp.tileSize, gp.tileSize);
+        String prefix;
+        switch (currentWeapon.name) {
+            case "Banana Blade":       prefix = "AttackBanana"; break;
+            case "Lime Edge":          prefix = "AttackLime"; break;
+            case "Watermelon Smasher": prefix = "AttackMelon"; break;
+            case "Pineapple Pickaxe":  prefix = "AttackPine"; break;
+            default:
+                if (currentWeapon.type == type_axe) prefix = "AttackAxe";
+                else if (currentWeapon.type == type_picaxe) prefix = "AttackPic";
+                else prefix = "Attack";
         }
-        if(currentWeapon.type == type_axe) {
-        AttackUp1 = setup("/res/player/AttackAxeUp1", gp.tileSize, gp.tileSize); 
-        AttackUp2 = setup("/res/player/AttackAxeUp2", gp.tileSize, gp.tileSize); 
-        AttackDown1 = setup("/res/player/AttackAxeDown1", gp.tileSize, gp.tileSize);
-        AttackDown2 = setup("/res/player/AttackAxeDown2", gp.tileSize, gp.tileSize);
-        AttackLeft1 = setup("/res/player/AttackAxeLeft1", gp.tileSize , gp.tileSize); 
-        AttackLeft2 = setup("/res/player/AttackAxeLeft2", gp.tileSize , gp.tileSize);
-        AttackRight1 = setup("/res/player/AttackAxeRight1", gp.tileSize, gp.tileSize);
-        AttackRight2 = setup("/res/player/AttackAxeRight2", gp.tileSize, gp.tileSize);
-        }
-        if(currentWeapon.type == type_picaxe) {
-        AttackUp1 = setup("/res/player/AttackPicUp1", gp.tileSize, gp.tileSize); 
-        AttackUp2 = setup("/res/player/AttackPicUp2", gp.tileSize, gp.tileSize); 
-        AttackDown1 = setup("/res/player/AttackPicDown1", gp.tileSize, gp.tileSize);
-        AttackDown2 = setup("/res/player/AttackPicDown2", gp.tileSize, gp.tileSize);
-        AttackLeft1 = setup("/res/player/AttackPicLeft1", gp.tileSize , gp.tileSize); 
-        AttackLeft2 = setup("/res/player/AttackPicLeft2", gp.tileSize , gp.tileSize);
-        AttackRight1 = setup("/res/player/AttackPicRight1", gp.tileSize, gp.tileSize);
-        AttackRight2 = setup("/res/player/AttackPicRight2", gp.tileSize, gp.tileSize);
-        }
+        AttackUp1 = setup("/res/player/" + prefix + "Up1", gp.tileSize, gp.tileSize);
+        AttackUp2 = setup("/res/player/" + prefix + "Up2", gp.tileSize, gp.tileSize);
+        AttackDown1 = setup("/res/player/" + prefix + "Down1", gp.tileSize, gp.tileSize);
+        AttackDown2 = setup("/res/player/" + prefix + "Down2", gp.tileSize, gp.tileSize);
+        AttackLeft1 = setup("/res/player/" + prefix + "Left1", gp.tileSize, gp.tileSize);
+        AttackLeft2 = setup("/res/player/" + prefix + "Left2", gp.tileSize, gp.tileSize);
+        AttackRight1 = setup("/res/player/" + prefix + "Right1", gp.tileSize, gp.tileSize);
+        AttackRight2 = setup("/res/player/" + prefix + "Right2", gp.tileSize, gp.tileSize);
     }
+    /** Picks the guard sprites that match the equipped shield. */
     public void getGuardImage() {
-        guardUp = setup("/res/player/guardUp", gp.tileSize, gp.tileSize);
-        guardDown = setup("/res/player/guardDown", gp.tileSize, gp.tileSize);
-        guardLeft = setup("/res/player/guardLeft", gp.tileSize, gp.tileSize);
-        guardRight = setup("/res/player/guardRight", gp.tileSize, gp.tileSize);
+        String prefix;
+        switch (currentSHield.name) {
+            case "Blueberry Shield":     prefix = "guardBlue"; break;
+            case "Strawberry Shield":    prefix = "guardStraw"; break;
+            case "Grape Cluster Shield": prefix = "guardGrape"; break;
+            case "Dragonfruit Shield":   prefix = "guardDragon"; break;
+            default:                     prefix = "guard";
+        }
+        guardUp = setup("/res/player/" + prefix + "Up", gp.tileSize, gp.tileSize);
+        guardDown = setup("/res/player/" + prefix + "Down", gp.tileSize, gp.tileSize);
+        guardLeft = setup("/res/player/" + prefix + "Left", gp.tileSize, gp.tileSize);
+        guardRight = setup("/res/player/" + prefix + "Right", gp.tileSize, gp.tileSize);
     }
 
+    // Idle animation: breathe and blink while standing still
+    BufferedImage idleUp1, idleUp2, idleDown1, idleDown2, idleLeft1, idleLeft2, idleRight1, idleRight2;
+    int idleCounter = 0;
+    static final int IDLE_DELAY = 30;     // frames standing still before the idle loop starts
+    static final int IDLE_CYCLE = 70;     // one breath, in frames
+    static final int IDLE_EXHALE = 14;    // frames of the breath-out/blink pose per cycle
 
+    public void getIdleImage() {
+        idleUp1 = setup("/res/player/OrangeIdleUp1", gp.tileSize, gp.tileSize);
+        idleUp2 = setup("/res/player/OrangeIdleUp2", gp.tileSize, gp.tileSize);
+        idleDown1 = setup("/res/player/OrangeIdleDown1", gp.tileSize, gp.tileSize);
+        idleDown2 = setup("/res/player/OrangeIdleDown2", gp.tileSize, gp.tileSize);
+        idleLeft1 = setup("/res/player/OrangeIdleLeft1", gp.tileSize, gp.tileSize);
+        idleLeft2 = setup("/res/player/OrangeIdleLeft2", gp.tileSize, gp.tileSize);
+        idleRight1 = setup("/res/player/OrangeIdleRight1", gp.tileSize, gp.tileSize);
+        idleRight2 = setup("/res/player/OrangeIdleRight2", gp.tileSize, gp.tileSize);
+    }
 
+    BufferedImage idleFrame() {
+        boolean exhale = (idleCounter - IDLE_DELAY) % IDLE_CYCLE >= IDLE_CYCLE - IDLE_EXHALE;
+        switch (direction) {
+            case "up":    return exhale ? idleUp2 : idleUp1;
+            case "left":  return exhale ? idleLeft2 : idleLeft1;
+            case "right": return exhale ? idleRight2 : idleRight1;
+            default:      return exhale ? idleDown2 : idleDown1;
+        }
+    }
 
     public void update() {  
         if(knockBack == true) {
@@ -368,6 +396,11 @@ public class Player extends entity {
             }
             guarding = false;
             guardCounter = 0;
+            idleCounter++;
+        }
+        if (attacking || guarding || charging || knockBack
+                || keyH.upPressed || keyH.downPressed || keyH.leftPressed || keyH.rightPressed) {
+            idleCounter = 0;
         }
        if(gp.keyH.shotKeyPressed == true && shotAvailableCounter == 30) {
     // Create new FireSeed with current attack value
@@ -608,6 +641,7 @@ public class Player extends entity {
             if(selectedItem.type == type_shield) {
                 currentSHield = selectedItem;
                 defense = getDefense();
+                getGuardImage();
             }
             if(selectedItem.type == type_light) {
                 if(currentLight == selectedItem) {
@@ -728,6 +762,11 @@ public class Player extends entity {
             break;
     }
     
+    if (!attacking && !guarding && idleCounter > IDLE_DELAY) {
+        BufferedImage idle = idleFrame();
+        if (idle != null) image = idle;
+    }
+
     // Set transparency for invincibility or invisibility
     if (transparent == true) {
         g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.4f));
