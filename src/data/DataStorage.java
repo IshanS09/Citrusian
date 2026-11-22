@@ -1,10 +1,13 @@
 package data;
 
 import java.io.Serializable;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class DataStorage implements Serializable {
+
+    // Pinned to the ID Java computed for this class, so existing save.dat files still load
+    // and adding a field later does not break them
+    private static final long serialVersionUID = 7196435754422955874L;
    
     int level;
     int maxLife;

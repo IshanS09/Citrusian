@@ -48,11 +48,21 @@ public class Sound {
     public void setFile(int i) {
         try {
             AudioInputStream ais = AudioSystem.getAudioInputStream(soundURL[i]);
-            clip = AudioSystem.getClip();
-            clip.open(ais);
-            fc = (FloatControl)clip.getControl(FloatControl.Type.MASTER_GAIN);
+            Clip newClip = AudioSystem.getClip();
+            // Free the audio line once the clip stops. Without this, every sound
+            // effect leaves an open line behind and the system can run out of them.
+            newClip.addLineListener(event -> {
+                if (event.getType() == LineEvent.Type.STOP) {
+                    newClip.close();
+                }
+            });
+            newClip.open(ais);
+            clip = newClip;
+            fc = clip.isControlSupported(FloatControl.Type.MASTER_GAIN)
+                    ? (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN)
+                    : null;
             checkVolume();
-            
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -68,15 +78,15 @@ public class Sound {
     }
     
     public void loop() {
-       
-        clip.loop(Clip.LOOP_CONTINUOUSLY);
-        
+        if (clip != null) {
+            clip.loop(Clip.LOOP_CONTINUOUSLY);
+        }
     }
 
     public void stop() {
-        
-        clip.stop();
-        
+        if (clip != null) {
+            clip.stop();
+        }
     }
     public void checkVolume() {
         switch (volumeScale) {
@@ -87,7 +97,9 @@ public class Sound {
             case 4: volume = 1f; break;
             case 5: volume = 6f; break;
         }
-        fc.setValue(volume);
+        if (fc != null) {
+            fc.setValue(Math.max(fc.getMinimum(), Math.min(fc.getMaximum(), volume)));
+        }
     }
 }
 

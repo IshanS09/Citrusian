@@ -47,6 +47,7 @@ public class keyHandler implements KeyListener {
                 enterPressed = true;
                 if(gp.ui.commandNum == 0) {
                     // NEW GAME - Play intro cutscene
+                    gp.ui.titleNote = "";
                     gp.setupGame();
                     gp.gameState = gp.cutsceneState;
                     gp.csManager.sceneNum = gp.csManager.intro;
@@ -54,9 +55,15 @@ public class keyHandler implements KeyListener {
                     // Music will start after cutscene in scene_intro()
                 } else if(gp.ui.commandNum == 1) {
                     // LOAD GAME - No cutscene, straight to gameplay
-                    gp.saveLoad.load();
-                    gp.gameState = gp.playState;
-                    gp.playMusic(0);
+                    if (gp.saveLoad.load()) {
+                        gp.ui.titleNote = "";
+                        gp.gameState = gp.playState;
+                        gp.playMusic(0);
+                    } else {
+                        // Stay on the title screen instead of silently starting a blank game
+                        gp.ui.titleNote = gp.saveLoad.hasSave() ? "Save file could not be read" : "No save file found";
+                        gp.playSE(15);
+                    }
                 } else if(gp.ui.commandNum == 2) {
                     System.exit(0); // Exit the game
                 }
@@ -94,9 +101,13 @@ public class keyHandler implements KeyListener {
                 spacePressed = true;
             }
             if(code == KeyEvent.VK_O) {
-                gp.saveLoad.save();
-                gp.ui.addMessage("Game Saved!");
-                gp.playSE(9);
+                if (gp.saveLoad.save()) {
+                    gp.ui.addMessage("Game Saved!");
+                    gp.playSE(9);
+                } else {
+                    gp.ui.addMessage("Save failed!");
+                    gp.playSE(15);
+                }
             }
             if(code == KeyEvent.VK_SHIFT) {
                 shiftPressed = true;

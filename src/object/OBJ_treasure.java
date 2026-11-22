@@ -21,7 +21,7 @@ public class OBJ_treasure extends entity {
     public void setDialogues() {
 
         dialogues[0][0] = "After centuries, the Citrusian Helm is in the hands of a Fructari...";
-        dialogues[0][0] = "The Rotroot Clan is no more...";
+        dialogues[0][1] = "The Rotroot Clan is no more...";
                 
     }
     public boolean use(entity entity) {

@@ -5,18 +5,20 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import entity.entity;
 import main.gamePanel;
 
 public class SaveLoad {
+    private static final String SAVE_FILE = "save.dat";
     gamePanel gp;
 
     public SaveLoad(gamePanel gp) {
         this.gp = gp;
     }
     
-    public void save() {
-        try {
-            ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(new File("save.dat")));
+    /** Writes the save file. Returns true if it was written successfully. */
+    public boolean save() {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(new File(SAVE_FILE)))) {
             
             DataStorage ds = new DataStorage();
 
@@ -64,14 +66,24 @@ public class SaveLoad {
             }
 
            oos.writeObject(ds);
+           return true;
 
         } catch (java.io.IOException e) {
             System.out.println("Error saving game: " + e.getMessage());
+            return false;
         }
     }
-    public void load() {
-        try {
-            ObjectInputStream ois  = new ObjectInputStream(new FileInputStream(new File("save.dat")));
+
+    public boolean hasSave() {
+        return new File(SAVE_FILE).isFile();
+    }
+
+    /** Reads the save file. Returns false if there is no save or it can't be read. */
+    public boolean load() {
+        if (!hasSave()) {
+            return false;
+        }
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(new File(SAVE_FILE)))) {
 
             DataStorage ds = (DataStorage) ois.readObject();
 
@@ -86,14 +98,29 @@ public class SaveLoad {
             gp.player.nextLevelExp = ds.nextLevelExp;
             gp.player.coin = ds.coin;
 
+            // Rebuild the inventory, skipping any item the game no longer knows about.
+            // Slot numbers shift when an item is skipped, so track the new weapon/shield slots.
             gp.player.inventory.clear();
+            int weaponSlot = -1;
+            int shieldSlot = -1;
             for(int i = 0; i < ds.itemNames.size(); i++) {
-                gp.player.inventory.add(gp.eGenerator.getObject(ds.itemNames.get(i)));
-                gp.player.inventory.get(i).amount = ds.itemAmounts.get(i);
+                entity item = gp.eGenerator.getObject(ds.itemNames.get(i));
+                if (item == null) {
+                    System.out.println("Skipping unknown saved item: " + ds.itemNames.get(i));
+                    continue;
+                }
+                item.amount = ds.itemAmounts.get(i);
+                if (i == ds.currentWeaponSlot) weaponSlot = gp.player.inventory.size();
+                if (i == ds.currentShieldSlot) shieldSlot = gp.player.inventory.size();
+                gp.player.inventory.add(item);
             }
 
-            gp.player.currentWeapon = gp.player.inventory.get(ds.currentWeaponSlot);
-            gp.player.currentSHield = gp.player.inventory.get(ds.currentShieldSlot);
+            if (weaponSlot >= 0) {
+                gp.player.currentWeapon = gp.player.inventory.get(weaponSlot);
+            }
+            if (shieldSlot >= 0) {
+                gp.player.currentSHield = gp.player.inventory.get(shieldSlot);
+            }
 
             if (gp.player.currentWeapon != null) {
                 gp.player.currentWeapon.durability = ds.currentWeaponDurability;
@@ -129,8 +156,11 @@ public class SaveLoad {
         }
     }
 
+            return true;
+
         } catch(Exception e) {
             System.out.println("Error loading game: " + e.getMessage());
+            return false;
         }
     }
 }

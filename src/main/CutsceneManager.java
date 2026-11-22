@@ -189,9 +189,7 @@ public class CutsceneManager {
     else if (scenePhase == 1) {
     // Move player forward
     gp.player.worldY -= 2;
-    System.out.println("Phase 1: Player worldY = " + gp.player.worldY + ", Target = " + (gp.tileSize * 40)); // DEBUG
     if (gp.player.worldY < gp.tileSize * 38) { // Adjust as needed
-            System.out.println("Phase 1 complete, moving to phase 2"); // DEBUG
             scenePhase++;
         }
     }
@@ -208,7 +206,6 @@ public class CutsceneManager {
             gp.ui.npc = gp.monster[gp.currentMap][i];
             gp.ui.npc.dialogueSet = 0;
             gp.ui.npc.dialogueIndex = 0;
-            System.out.println("Set dialogue, gameState = " + gp.cutsceneState);
             gp.gameState = gp.cutsceneState;
             
             allowDialogue = true;  // ADD THIS
@@ -217,7 +214,6 @@ public class CutsceneManager {
             break;
         }
     }
-    System.out.println("End of phase 2, scenePhase = " + scenePhase);
 }
 
     else if (scenePhase == 3) {

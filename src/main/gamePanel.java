@@ -242,26 +242,28 @@ public class gamePanel extends JPanel implements Runnable {
         double delta = 0;
         long lastTime = System.nanoTime();
         long currentTime;
-        long timer = 0;
-        long drawCount = 0;
 
         while(gameThread != null) {
             currentTime = System.nanoTime();
 
             delta += (currentTime - lastTime) / drawInterval;
-            timer += (currentTime - lastTime);
             lastTime = currentTime;
 
             if(delta >= 1) {
                 update();
                 repaint();
                 delta--;
-                drawCount++;
             }
 
-            if(timer >= 1000000000) {
-                drawCount = 0;
-                timer = 0;
+            // Sleep until the next frame is due so the loop doesn't pin a CPU core at 100%
+            long sleepNanos = (long) ((1 - delta) * drawInterval);
+            if (sleepNanos > 0) {
+                try {
+                    Thread.sleep(sleepNanos / 1000000, (int) (sleepNanos % 1000000));
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    return;
+                }
             }
         }
     }
@@ -369,6 +371,7 @@ public class gamePanel extends JPanel implements Runnable {
                 }
                 if (!particleList.get(i).alive) {
                     particleList.remove(i);
+                    i--; // stay on this index so the next particle isn't skipped
                 }
             }
         }

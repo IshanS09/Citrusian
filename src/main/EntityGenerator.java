@@ -12,6 +12,8 @@ import object.OBJ_Lantern;
 import object.OBJ_Regeneration;
 import object.OBJ_SpeedBoost;
 import object.OBJ_Tent;
+import object.OBJ_heart;
+import object.OBJ_treasure;
 import object.OBJ_axe;
 import object.OBJ_axe_watermelon;
 import object.OBJ_coin;
@@ -82,6 +84,9 @@ public class EntityGenerator {
             case OBJ_shield_dragonfruit.objName: obj = new OBJ_shield_dragonfruit(gp); break;
             case OBJ_shield_grape.objName: obj = new OBJ_shield_grape(gp); break;
             case OBJ_Regeneration.objName: obj = new OBJ_Regeneration(gp); break;
+            // Without these two, the Citrusian Helm and dropped hearts vanished after loading a save
+            case OBJ_treasure.objName: obj = new OBJ_treasure(gp); break;
+            case OBJ_heart.objName: obj = new OBJ_heart(gp); break;
         }
         return obj;
     }

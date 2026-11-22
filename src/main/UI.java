@@ -67,6 +67,8 @@ public class UI {
 
     }
 
+    public String titleNote = ""; // short status line on the title screen, e.g. "No save file found"
+
     public void addMessage(String text) {
         message.add(text);
         messageCounter.add(0);
@@ -330,6 +332,15 @@ public void drawDialogueScreen() {
         g2.drawString(text, x, y);
         if(commandNum == 2) {
             g2.drawString(">", x - gp.tileSize, y); 
+        }
+
+        if (!titleNote.isEmpty()) {
+            g2.setFont(g2.getFont().deriveFont(Font.PLAIN, 28F));
+            x = getXforCenteredText(titleNote);
+            y += gp.tileSize;
+            g2.setColor(new Color(255, 220, 120));
+            g2.drawString(titleNote, x, y);
+            g2.setColor(Color.white);
         }
     }
     public void drawPauseScreen() {
