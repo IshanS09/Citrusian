@@ -163,6 +163,10 @@ public class MON_BaronRotjaw extends entity {
         
         // Play slam sound effect
         gp.playSE(8); // Use appropriate sound effect number
+
+        // The deck splinters where he lands
+        int size = gp.tileSize * 3;
+        gp.particleList.add(new DeckCrack(gp, worldX + size / 2, worldY + size - gp.tileSize / 3));
         
         // Spawn rocks in 4 cardinal directions
         spawnRockProjectile("up");

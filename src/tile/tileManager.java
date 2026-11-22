@@ -63,6 +63,19 @@ public class tileManager {
             setup(28, "throne1", true);
             setup(29, "throne2", true);
             setup(30, "castle", false);
+
+            // Baron Rotjaw's ship (BRJmap)
+            setup(31, "hull", true);
+            setup(32, "cannon_left", true);
+            setup(33, "cannon_right", true);
+            setup(34, "barrel", true);
+            setup(35, "crate", true);
+            setup(36, "hammock", true);
+            setup(37, "ship_wheel", true);
+            setup(38, "hatch", false);
+            setup(39, "gangplank", false);
+            setup(40, "pier", false);
+            setup(41, "water_foam", true);
             
     }
     public void setup(int index, String imageName, boolean collision) {

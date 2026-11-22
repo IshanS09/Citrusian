@@ -382,6 +382,139 @@ def metal_plate():
     return c
 
 
+
+# ------------------------------------------------------------ Baron Rotjaw's ship
+HULL = rgb('5a3a22'); HULL_D = rgb('432a18'); HULL_L = rgb('74502f')
+IRON_BLACK = rgb('2e2f33')
+
+
+def hull():
+    """The ship's wooden side (blocks movement)."""
+    c = planks(HULL, HULL_D, HULL_L, vertical=True, seed=201)
+    for x, y in ((1, 2), (5, 9), (9, 3), (13, 12)):
+        c.set(x, y, rgb('9aa0a8'))                      # nail heads
+    return c
+
+
+def cannon(facing_left=True):
+    """Deck cannon aimed over the rail. Barrel tapers to a muzzle on the left."""
+    c = boardwalk()
+    o = Canvas(S)
+    o.rect(7, 4, 13, 11, rgb('6b4428'), 'carriage'); o.shade('carriage', rgb('6b4428'))
+    for wx, wy in ((8, 3), (12, 3), (8, 12), (12, 12)):
+        o.rect(wx, wy, wx + 1, wy, rgb('4a3020'), 'wheel')
+    o.poly([(1.5, 6.5), (10, 6), (13, 6.5), (13, 9.5), (10, 10), (1.5, 9.5)], rgb('3c3d42'), 'barrel')
+    o.ellipse(13.5, 8, 1.8, 2, rgb('3c3d42'), 'barrel')
+    o.rect(1, 6, 2, 10, rgb('3c3d42'), 'barrel')              # muzzle lip
+    o.shade('barrel', rgb('3c3d42'), hi=rgb('6a6c74'), lo=rgb('1e1e22'))
+    o.rect(0, 7, 1, 8, rgb('0c0c0e'), 'mouth')
+    if not facing_left:
+        o = o.mirrored()
+    return overlay(c, o)
+
+
+def barrel():
+    c = boardwalk()
+    o = Canvas(S)
+    o.ellipse(8, 8, 6.5, 6.5, rgb('a06a3a'), 'barrel'); o.shade('barrel', rgb('a06a3a'))
+    o.ellipse(8, 8, 4.2, 4.2, rgb('b98048'), 'lid')
+    for x in range(4, 13, 3):
+        o.line(x, 4, x, 12, rgb('8a5a30'), 'lid')
+    ring = Canvas(S)
+    for y in range(S):
+        for x in range(S):
+            d = ((x + .5 - 8) ** 2 + (y + .5 - 8) ** 2) ** .5
+            if 5.4 < d < 6.4:
+                o.set(x, y, rgb('6a6e75'), 'ring')
+    return overlay(c, o)
+
+
+def crate():
+    c = boardwalk()
+    o = Canvas(S)
+    o.rect(2, 2, 13, 13, rgb('c4955a'), 'box'); o.shade('box', rgb('c4955a'))
+    o.line(3, 3, 12, 12, rgb('8a6236'), 'brace'); o.line(3, 12, 12, 3, rgb('8a6236'), 'brace')
+    o.rect(2, 2, 13, 2, rgb('8a6236'), 'brace'); o.rect(2, 13, 13, 13, rgb('8a6236'), 'brace')
+    return overlay(c, o)
+
+
+def hammock():
+    c = boardwalk()
+    o = Canvas(S)
+    o.line(0, 4, 3, 6, rgb('d9c9a0'), 'rope'); o.line(15, 4, 12, 6, rgb('d9c9a0'), 'rope')
+    o.poly([(3, 5), (12, 5), (13, 9), (8, 12), (2, 9)], rgb('e8dcc0'), 'cloth'); o.shade('cloth', rgb('e8dcc0'))
+    o.line(4, 8, 11, 8, rgb('c9b48a'), 'cloth')
+    o.ellipse(9.5, 7.5, 2, 1.5, rgb('a83a3a'), 'blanket')
+    return overlay(c, o)
+
+
+def ship_wheel():
+    c = boardwalk()
+    o = Canvas(S)
+    for i in range(8):
+        import math
+        a = i * math.pi / 4
+        x1, y1 = round(8 + math.cos(a) * 7), round(8 + math.sin(a) * 7)
+        o.line(8, 8, x1, y1, rgb('7a4a28'), 'spoke')
+        o.set(x1, y1, rgb('b07a42'), 'handle')
+    for y in range(S):
+        for x in range(S):
+            d = ((x + .5 - 8) ** 2 + (y + .5 - 8) ** 2) ** .5
+            if 4 < d < 5.6:
+                o.set(x, y, rgb('9a6238'), 'rim')
+    o.shade('rim', rgb('9a6238'))
+    o.ellipse(8, 8, 1.6, 1.6, GOLD_HUB, 'hub')
+    return overlay(c, o)
+
+
+GOLD_HUB = rgb('e8b931')
+
+
+def hatch():
+    """Trapdoor down to the hold (walkable decoration)."""
+    c = boardwalk()
+    o = Canvas(S)
+    o.rect(2, 2, 13, 13, rgb('6e4428'), 'door'); o.shade('door', rgb('6e4428'))
+    for y in (5, 8, 11):
+        o.line(3, y, 12, y, rgb('553320'), 'door')
+    o.rect(3, 3, 4, 4, rgb('9aa0a8'), 'hinge'); o.rect(11, 3, 12, 4, rgb('9aa0a8'), 'hinge')
+    o.rect(7, 11, 8, 12, rgb('e8b931'), 'ring')
+    return overlay(c, o)
+
+
+def gangplank():
+    c = planks(rgb('a8784a'), rgb('7a5232'), rgb('c08c58'), vertical=True, seed=211)
+    for y in (3, 8, 13):
+        c.line(2, y, 13, y, rgb('6a4428'))               # cleats for grip
+    c.line(0, 0, 0, 15, rgb('d9c9a0')); c.line(15, 0, 15, 15, rgb('d9c9a0'))   # rope edges
+    return c
+
+
+def pier():
+    c = planks(rgb('b08a60'), rgb('8a6a46'), rgb('c8a57a'), seed=221)
+    for x, y in ((0, 0), (15, 0), (0, 15), (15, 15)):
+        c.set(x, y, rgb('5a3a22'))
+    return c
+
+
+def water_foam():
+    """Ocean right next to the hull, with foam where the waves hit (blocks movement)."""
+    c = water(1)
+    rnd = random.Random(231)
+    for _ in range(14):
+        x, y = rnd.randrange(S), rnd.randrange(S)
+        c.set(x, y, FOAM)
+        c.set((x + 1) % S, y, rgb('ffffff'))
+    return c
+
+
+SHIP_TILES = {
+    'hull': hull, 'cannon_left': lambda: cannon(True), 'cannon_right': lambda: cannon(False),
+    'barrel': barrel, 'crate': crate, 'hammock': hammock, 'ship_wheel': ship_wheel,
+    'hatch': hatch, 'gangplank': gangplank, 'pier': pier, 'water_foam': water_foam,
+}
+
+
 TILES = {
     'grass': grass, 'flower': lambda: flowers(1), 'flower2': lambda: flowers(2), 'tree': tree,
     'mountain': mountain, 'road00': sand, 'path': path, 'dirt': dirt, 'bridge': bridge,
@@ -392,6 +525,7 @@ TILES = {
     'throne1': lambda: throne(1), 'throne2': lambda: throne(2),
     'stairsdown': lambda: stairs(True), 'stairsup': lambda: stairs(False), 'void': void,
 }
+TILES.update(SHIP_TILES)
 INTERACTIVE = {'treedry': dry_tree, 'trunk': trunk, 'destructibleWall': destructible_wall, 'metalPlate': metal_plate}
 
 
