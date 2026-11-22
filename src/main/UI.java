@@ -1,5 +1,6 @@
 package main;
 
+import entity.Player;
 import entity.entity;
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -235,7 +236,35 @@ public class UI {
         x += 45;
     }
 
+    drawStaminaBar();
 }
+
+    // Stamina bar under the fire seeds. Grows wider with stamina upgrades.
+    public void drawStaminaBar() {
+        int x = gp.tileSize / 2 + 4;
+        int y = gp.tileSize * 3 + 6;
+        int width = gp.player.maxStamina * 2;
+        int height = 14;
+        int fill = width * gp.player.stamina / gp.player.maxStamina;
+
+        g2.setColor(new Color(20, 16, 20));
+        g2.fillRoundRect(x - 3, y - 3, width + 6, height + 6, 8, 8);
+        g2.setColor(new Color(60, 60, 60));
+        g2.fillRect(x, y, width, height);
+
+        Color fillColor;
+        if (gp.playerStatus != null && gp.playerStatus.isSlowed()) {
+            fillColor = new Color(120, 190, 235);   // tear gas: refill paused
+        } else if (gp.player.stamina < Player.DASH_STAMINA) {
+            fillColor = new Color(235, 150, 40);    // too low to dash
+        } else {
+            fillColor = new Color(130, 210, 80);
+        }
+        g2.setColor(fillColor);
+        g2.fillRect(x, y, fill, height);
+        g2.setColor(new Color(255, 255, 255, 70));
+        g2.fillRect(x, y, fill, height / 3);
+    }
 
 public void drawDialogueScreen() {
     int x = gp.tileSize * 3;
@@ -846,6 +875,9 @@ public void drawTradeScreen() {
         case 2:
             trade_sell();
             break;
+        case 3:
+            trade_upgrade();
+            break;
     }
     gp.keyH.enterPressed = false;
 }
@@ -855,8 +887,8 @@ public void trade_select() {
 
     int x = gp.tileSize * 15;
     int y = gp.tileSize * 4;
-    int width = gp.tileSize * 3;
-    int height = (int)(gp.tileSize * 3.5);
+    int width = gp.tileSize * 4;
+    int height = (int)(gp.tileSize * 4.5);
     drawSubWindow(x, y, width, height);
 
     x += gp.tileSize;
@@ -880,9 +912,21 @@ public void trade_select() {
         }
     }
     y+= gp.tileSize;
+
+    g2.drawString("Upgrade", x, y);
+     if(commandNum == 2) {
+        g2.drawString(">", x - 24, y);
+        if(gp.keyH.enterPressed == true) {
+            subState = 3; // Go to upgrade state
+            commandNum = 0;
+            upgradeNote = "";
+            gp.keyH.enterPressed = false;
+        }
+    }
+    y+= gp.tileSize;
     
     g2.drawString("Leave", x, y);
-     if(commandNum == 2) {
+     if(commandNum == 3) {
         g2.drawString(">", x - 24, y);
         if(gp.keyH.enterPressed == true) {
             commandNum = 0; // Reset commandNum
@@ -1032,6 +1076,130 @@ public int getItemIndex(int slotCol, int slotRow) {
     return itemIndex;
 }
     
+// ===================== Merchant upgrades =====================
+// Permanent upgrades bought with Crop Coins. Leveling up already raises
+// health, attack and defense, so these cover things leveling never touches.
+public String upgradeNote = "";
+static final int[] SEED_PRICES = {60, 100, 150};
+static final int[] STAMINA_PRICES = {50, 90, 140};
+static final int[] PARRY_PRICES = {80, 140};
+static final int REPAIR_COST_PER_POINT = 2;
+java.util.HashMap<String, Integer> maxDurabilityCache = new java.util.HashMap<>();
+
+int maxDurabilityOf(entity item) {
+    if (item == null) return 0;
+    return maxDurabilityCache.computeIfAbsent(item.name, n -> {
+        entity fresh = gp.eGenerator.getObject(n);
+        return fresh == null ? item.durability : fresh.durability;
+    });
+}
+
+int repairCost() {
+    entity w = gp.player.currentWeapon;
+    entity sh = gp.player.currentSHield;
+    int missing = Math.max(0, maxDurabilityOf(w) - w.durability) + Math.max(0, maxDurabilityOf(sh) - sh.durability);
+    if (missing == 0) return 0;
+    return Math.max(5, missing * REPAIR_COST_PER_POINT);
+}
+
+public void trade_upgrade() {
+    Player p = gp.player;
+    int x = gp.tileSize * 2;
+    int y = gp.tileSize;
+    int width = gp.tileSize * 18;
+    int height = gp.tileSize * 8;
+    drawSubWindow(x, y, width, height);
+
+    g2.setFont(g2.getFont().deriveFont(Font.BOLD, 36F));
+    g2.setColor(Color.white);
+    g2.drawString("Upgrades", x + 40, y + 60);
+
+    String[] names = {"Seed Pouch", "Stamina Training", "Steady Guard", "Repair Gear"};
+    String[] about = {
+        "+1 max fire seed",
+        "+20 max stamina",
+        "Easier parry timing",
+        "Fix weapon and shield"
+    };
+    int[] levels = {p.seedUpgrades, p.staminaUpgrades, p.parryUpgrades, -1};
+    int[] maxLevels = {Player.MAX_SEED_UPGRADES, Player.MAX_STAMINA_UPGRADES, Player.MAX_PARRY_UPGRADES, -1};
+    int[] prices = {
+        p.seedUpgrades < SEED_PRICES.length ? SEED_PRICES[p.seedUpgrades] : 0,
+        p.staminaUpgrades < STAMINA_PRICES.length ? STAMINA_PRICES[p.staminaUpgrades] : 0,
+        p.parryUpgrades < PARRY_PRICES.length ? PARRY_PRICES[p.parryUpgrades] : 0,
+        repairCost()
+    };
+
+    g2.setFont(g2.getFont().deriveFont(Font.PLAIN, 28F));
+    int rowY = y + 120;
+    for (int i = 0; i < names.length; i++) {
+        boolean maxed = maxLevels[i] >= 0 && levels[i] >= maxLevels[i];
+        boolean nothingToFix = i == 3 && prices[i] == 0;
+        g2.setColor(maxed || nothingToFix ? new Color(190, 190, 190) : Color.white);
+
+        g2.drawString(names[i], x + 70, rowY);
+        g2.drawString(about[i], x + 390, rowY);
+        if (maxLevels[i] >= 0) {
+            g2.drawString("Lv " + levels[i] + "/" + maxLevels[i], x + 760, rowY);
+        }
+        String priceText = maxed ? "MAX" : nothingToFix ? "--" : "" + prices[i];
+        if (!maxed && !nothingToFix) {
+            g2.drawImage(coin, x + 910, rowY - 26, 32, 32, null);
+        }
+        g2.drawString(priceText, getXforAlignText(priceText, x + width - 50), rowY);
+
+        if (commandNum == i) {
+            g2.setColor(Color.white);
+            g2.drawString(">", x + 40, rowY);
+            if (gp.keyH.enterPressed) {
+                buyUpgrade(i, prices[i], maxed, nothingToFix);
+            }
+        }
+        rowY += gp.tileSize;
+    }
+
+    g2.setColor(Color.white);
+    g2.drawString("Crop Coins: " + p.coin, x + 70, y + height - 40);
+    g2.drawString("[ESC] Back", getXforAlignText("[ESC] Back", x + width - 50), y + height - 40);
+    if (!upgradeNote.isEmpty()) {
+        g2.setColor(new Color(255, 220, 120));
+        g2.drawString(upgradeNote, getXforCenteredText(upgradeNote), y + height - 90);
+    }
+}
+
+void buyUpgrade(int choice, int price, boolean maxed, boolean nothingToFix) {
+    Player p = gp.player;
+    if (maxed) { upgradeNote = "Already maxed out!"; gp.playSE(15); return; }
+    if (nothingToFix) { upgradeNote = "Your gear is in great shape!"; return; }
+    if (p.coin < price) { upgradeNote = "Not enough Crop Coins!"; gp.playSE(15); return; }
+
+    p.coin -= price;
+    switch (choice) {
+        case 0:
+            p.seedUpgrades++;
+            p.maxSeed++;
+            p.seed = p.maxSeed;
+            upgradeNote = "Max fire seeds is now " + p.maxSeed + "!";
+            break;
+        case 1:
+            p.staminaUpgrades++;
+            p.maxStamina = Player.BASE_STAMINA + p.staminaUpgrades * 20;
+            p.stamina = p.maxStamina;
+            upgradeNote = "Max stamina is now " + p.maxStamina + "!";
+            break;
+        case 2:
+            p.parryUpgrades++;
+            upgradeNote = "Parries are easier to time!";
+            break;
+        case 3:
+            p.currentWeapon.durability = maxDurabilityOf(p.currentWeapon);
+            p.currentSHield.durability = maxDurabilityOf(p.currentSHield);
+            upgradeNote = "Weapon and shield repaired!";
+            break;
+    }
+    gp.playSE(2);
+}
+
 public void drawSubWindow(int x, int y, int width, int height) {
         Color c = new Color(87, 48, 28, 210 ); // Semi-transparent brown
         g2.setColor(c);

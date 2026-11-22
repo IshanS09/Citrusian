@@ -1,5 +1,7 @@
 package entity;
 import java.awt.AlphaComposite;
+import java.awt.Color;
+import java.awt.Rectangle;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import main.gamePanel;
@@ -15,6 +17,35 @@ public class Player extends entity {
     public final int screenY;
     public boolean lightUpdated = false;
     public boolean attackCanceled = false;
+
+    // ===== Stamina =====
+    // Dashing, guarding and charged attacks use it. Refills on its own after a short pause.
+    public static final int BASE_STAMINA = 100;
+    public static final int DASH_STAMINA = 30;
+    public static final int CHARGE_STAMINA = 35;
+    public static final int BLOCK_STAMINA = 10;
+    public static final int PARRY_STAMINA_REFUND = 15;
+    public int maxStamina = BASE_STAMINA;
+    public int stamina = BASE_STAMINA;
+    int staminaRegenDelay = 0;
+    int staminaTick = 0;
+    boolean tiredMessageShown = false;
+
+    // ===== Charged attack =====
+    // Swing, keep holding Enter, let go once the bar is full.
+    public boolean charging = false;
+    public boolean chargeReady = false;
+    public boolean chargedAttack = false;
+    public int chargeCounter = 0;
+    int enterReleasedFrames = 0;
+
+    // ===== Upgrades bought from the merchant =====
+    public int seedUpgrades = 0;
+    public int staminaUpgrades = 0;
+    public int parryUpgrades = 0;
+    public static final int MAX_SEED_UPGRADES = 3;
+    public static final int MAX_STAMINA_UPGRADES = 3;
+    public static final int MAX_PARRY_UPGRADES = 2;
 
 
 
@@ -59,6 +90,12 @@ public class Player extends entity {
         exp = 0;
         nextLevelExp = 10;
         coin = 100;
+        seedUpgrades = 0;
+        staminaUpgrades = 0;
+        parryUpgrades = 0;
+        maxStamina = BASE_STAMINA;
+        stamina = maxStamina;
+        cancelCharge();
         currentWeapon = new OBJ_sword_default(gp);
         currentSHield = new OBJ_shield_default(gp);
         currentLight = null;
@@ -95,6 +132,8 @@ public class Player extends entity {
         guarding = false;
         knockBack = false;
         lightUpdated = true;
+        stamina = maxStamina;
+        cancelCharge();
     }
     public void setItems() {
         inventory.clear();
@@ -229,13 +268,28 @@ public class Player extends entity {
             knockBack = false;
             speed = defaultSpeed; 
         }
+        cancelCharge(); // getting hit breaks your focus
     } 
         else if(attacking == true) {
+            if(chargedAttack) {
+                swordLunge();
+            }
             attacking();
+            if(attacking == false) {
+                onAttackFinished();
+            }
         }
-        else if(keyH.spacePressed == true) {
+        else if(charging == true) {
+            updateCharge();
+        }
+        else if(keyH.spacePressed == true && stamina > 0) {
             guarding = true;
             guardCounter++;
+            // Holding a guard slowly drains stamina (about 20 per second)
+            if(guardCounter % 3 == 0) {
+                stamina--;
+            }
+            staminaRegenDelay = 30;
         }
         else if (keyH.upPressed || keyH.downPressed || keyH.leftPressed || keyH.rightPressed || keyH.enterPressed) {
             if (keyH.upPressed) {
@@ -269,19 +323,20 @@ public class Player extends entity {
             gp.eHandler.checkEvent(); 
 
             if(collisionOn == false && keyH.enterPressed == false) {
-                // If a collision is detected, revert the movement
+                // Tear gas from a Weeping Onion halves walking speed
+                int moveSpeed = gp.playerStatus.isSlowed() ? Math.max(1, speed / 2) : speed;
                 switch (direction) {
                     case "up":
-                        worldY -= speed;
+                        worldY -= moveSpeed;
                         break;
                     case "down":
-                        worldY += speed;
+                        worldY += moveSpeed;
                         break;
                     case "left":
-                        worldX -= speed;
+                        worldX -= moveSpeed;
                         break;
                     case "right":
-                        worldX += speed;
+                        worldX += moveSpeed;
                         break;
                 }
             }
@@ -333,6 +388,8 @@ public class Player extends entity {
         gp.playSE(11);
     }
 }
+        updateStamina();
+
         if (invincible) {
             invincibleCounter++;
             if (invincibleCounter > 60) {
@@ -449,6 +506,9 @@ public class Player extends entity {
     if (weapon != null && damage > 0) {
     if (weapon.durability > 0) {
         weapon.durability--;
+        if (chargedAttack && weapon.durability > 0) {
+            weapon.durability--; // charged hits wear the weapon twice as fast
+        }
         if (weapon.durability == 0) {
             gp.ui.addMessage("Your " + weapon.name + " is BROKEN!");
         }
@@ -473,7 +533,11 @@ public class Player extends entity {
        gp.iTile[gp.currentMap][i].invincible == false) {
 
         gp.iTile[gp.currentMap][i].playSE();
-        gp.iTile[gp.currentMap][i].life--;
+        if (chargedAttack) {
+            gp.iTile[gp.currentMap][i].life = 0; // charged axe/pickaxe hit: one blow
+        } else {
+            gp.iTile[gp.currentMap][i].life--;
+        }
         gp.iTile[gp.currentMap][i].invincible = true;
 
         generateParticle(gp.iTile[gp.currentMap][i], gp.iTile[gp.currentMap][i]);
@@ -668,7 +732,189 @@ public class Player extends entity {
     }
     
     g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
+
+    if(charging && drawing) {
+        drawChargeBar(g2, tempScreenX, tempScreenY);
+    }
 }
+
+    void drawChargeBar(Graphics2D g2, int x, int y) {
+        int barX = x + 6;
+        int barY = y - 12;
+        int barW = gp.tileSize - 12;
+        int fill = Math.min(barW, barW * chargeCounter / getChargeTime());
+        g2.setColor(new Color(20, 16, 20));
+        g2.fillRect(barX - 2, barY - 2, barW + 4, 10);
+        boolean blink = chargeReady && (chargeCounter / 6) % 2 == 0;
+        g2.setColor(chargeReady ? (blink ? new Color(255, 250, 200) : new Color(255, 200, 40)) : new Color(230, 230, 230));
+        g2.fillRect(barX, barY, fill, 6);
+    }
+
+    // ===================== Stamina =====================
+
+    /** Spends stamina if there is enough. Returns false (and spends nothing) otherwise. */
+    public boolean useStamina(int amount) {
+        if (stamina < amount) {
+            return false;
+        }
+        stamina -= amount;
+        staminaRegenDelay = 40;
+        return true;
+    }
+
+    void updateStamina() {
+        if (stamina > 0) {
+            tiredMessageShown = false;
+        } else if (!tiredMessageShown && keyH.spacePressed) {
+            gp.ui.addMessage("Out of stamina!");
+            tiredMessageShown = true;
+        }
+        if (staminaRegenDelay > 0) {
+            staminaRegenDelay--;
+            return;
+        }
+        if (guarding || charging || gp.playerStatus.isSlowed() || stamina >= maxStamina) {
+            return;
+        }
+        // About 30 stamina per second
+        staminaTick++;
+        if (staminaTick % 2 == 0) {
+            stamina++;
+        }
+    }
+
+    /** A perfect parry gives some stamina back. Called from entity.damagePlayer(). */
+    public void onParry() {
+        stamina = Math.min(maxStamina, stamina + PARRY_STAMINA_REFUND);
+    }
+
+    /** Blocking a hit (not a parry) costs stamina. Called from entity.damagePlayer(). */
+    public void onBlock() {
+        stamina = Math.max(0, stamina - BLOCK_STAMINA);
+        staminaRegenDelay = 40;
+    }
+
+    /** Frames the guard counts as a parry. Starts at 10 (1/6 sec) and grows with upgrades. */
+    public int getParryWindow() {
+        return 10 + parryUpgrades * 4;
+    }
+
+    // ===================== Charged attack =====================
+    //   Swords:   0.5 sec charge, 1.5x damage, short lunge forward
+    //   Axes:     0.8 sec charge, 2x damage, double knockback
+    //   Pickaxes: 1.0 sec charge, 2x damage, 50% bigger hit area
+    //   Axe/pickaxe charged hits break trees/rocks in one blow.
+    //   Costs 35 stamina and 2 weapon durability per hit.
+
+    public int getChargeTime() {
+        if (currentWeapon.type == type_axe) return 48;
+        if (currentWeapon.type == type_picaxe) return 60;
+        return 30;
+    }
+
+    public double getChargeMultiplier() {
+        return currentWeapon.type == type_sword ? 1.5 : 2.0;
+    }
+
+    /** Attack value for the current swing, used by entity.attacking(). */
+    public int strikeAttack() {
+        if (!chargedAttack) return attack;
+        return (int) Math.round(attack * getChargeMultiplier());
+    }
+
+    /** Knockback for the current swing, used by entity.attacking(). */
+    public int strikeKnockBack() {
+        int kb = currentWeapon.knockBackPower;
+        if (chargedAttack && currentWeapon.type == type_axe) kb *= 2;
+        return kb;
+    }
+
+    void onAttackFinished() {
+        if (chargedAttack) {
+            chargedAttack = false;
+            attackArea = currentWeapon.attackArea; // undo the pickaxe's bigger swing
+            return;
+        }
+        // Still holding Enter after a normal swing: start charging
+        if (keyH.enterHeld && currentWeapon.durability > 0) {
+            charging = true;
+            chargeReady = false;
+            chargeCounter = 0;
+            enterReleasedFrames = 0;
+        }
+    }
+
+    void updateCharge() {
+        // Turn in place while charging
+        if (keyH.upPressed) direction = "up";
+        else if (keyH.downPressed) direction = "down";
+        else if (keyH.leftPressed) direction = "left";
+        else if (keyH.rightPressed) direction = "right";
+
+        if (keyH.spacePressed) {
+            cancelCharge();
+            return;
+        }
+
+        // Some systems send a quick release/press pair while a key is held,
+        // so only count Enter as released after two frames in a row.
+        enterReleasedFrames = keyH.enterHeld ? 0 : enterReleasedFrames + 1;
+        if (enterReleasedFrames >= 2) {
+            boolean ready = chargeReady;
+            cancelCharge();
+            keyH.enterPressed = false;
+            if (ready) {
+                startChargedAttack();
+            }
+            return;
+        }
+
+        chargeCounter++;
+        if (!chargeReady && chargeCounter >= getChargeTime()) {
+            chargeReady = true;
+            gp.playSE(2);
+        }
+        spriteNum = 1;
+    }
+
+    void startChargedAttack() {
+        if (!useStamina(CHARGE_STAMINA)) {
+            gp.ui.addMessage("Too tired for a charged attack!");
+            return;
+        }
+        chargedAttack = true;
+        attacking = true;
+        spriteCounter = 0;
+        if (currentWeapon.type == type_picaxe) {
+            Rectangle base = currentWeapon.attackArea;
+            attackArea = new Rectangle(0, 0, base.width * 3 / 2, base.height * 3 / 2);
+        }
+    }
+
+    public void cancelCharge() {
+        charging = false;
+        chargeReady = false;
+        chargeCounter = 0;
+        enterReleasedFrames = 0;
+    }
+
+    /** Swords hop forward during the wind-up of a charged swing. */
+    void swordLunge() {
+        if (currentWeapon.type != type_sword || spriteCounter >= motion1_duration) return;
+        int savedSpeed = speed;
+        speed = 12;
+        collisionOn = false;
+        gp.cChecker.checkTile(this);
+        if (!collisionOn) {
+            switch (direction) {
+                case "up": worldY -= speed; break;
+                case "down": worldY += speed; break;
+                case "left": worldX -= speed; break;
+                case "right": worldX += speed; break;
+            }
+        }
+        speed = savedSpeed;
+    }
 
     public void loseLevel() {
     if (level > 1) {

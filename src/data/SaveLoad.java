@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import entity.Player;
 import entity.entity;
 import main.gamePanel;
 
@@ -32,6 +33,23 @@ public class SaveLoad {
             ds.exp = gp.player.exp;
             ds.nextLevelExp = gp.player.nextLevelExp;
             ds.coin = gp.player.coin;
+
+            // Where you are and what you've beaten
+            ds.hasPosition = true;
+            ds.currentMap = gp.currentMap;
+            ds.worldX = gp.player.worldX;
+            ds.worldY = gp.player.worldY;
+            ds.direction = gp.player.direction;
+            ds.currentArea = gp.currentArea;
+            ds.maliBrocDefeated = Progress.maliBrocDefeated;
+            ds.baronRotjawDefeated = Progress.baronRotjawDefeated;
+            ds.peaKingDefeated = Progress.peaKingDefeated;
+
+            // Stamina and merchant upgrades
+            ds.stamina = gp.player.stamina;
+            ds.seedUpgrades = gp.player.seedUpgrades;
+            ds.staminaUpgrades = gp.player.staminaUpgrades;
+            ds.parryUpgrades = gp.player.parryUpgrades;
 
             for(int i = 0; i < gp.player.inventory.size(); i++) {
                 ds.itemNames.add(gp.player.inventory.get(i).name);
@@ -98,6 +116,32 @@ public class SaveLoad {
             gp.player.nextLevelExp = ds.nextLevelExp;
             gp.player.coin = ds.coin;
 
+            gp.player.seedUpgrades = ds.seedUpgrades;
+            gp.player.staminaUpgrades = ds.staminaUpgrades;
+            gp.player.parryUpgrades = ds.parryUpgrades;
+            gp.player.maxStamina = Player.BASE_STAMINA + ds.staminaUpgrades * 20;
+            gp.player.stamina = ds.hasPosition ? Math.min(ds.stamina, gp.player.maxStamina) : gp.player.maxStamina;
+            gp.player.cancelCharge();
+
+            Progress.maliBrocDefeated = ds.maliBrocDefeated;
+            Progress.baronRotjawDefeated = ds.baronRotjawDefeated;
+            Progress.peaKingDefeated = ds.peaKingDefeated;
+
+            // Put the player back where they saved. Saves from before this feature
+            // have no position, so those start at the usual spot.
+            if (ds.hasPosition) {
+                gp.currentMap = ds.currentMap;
+                gp.player.worldX = ds.worldX;
+                gp.player.worldY = ds.worldY;
+                gp.player.direction = ds.direction != null ? ds.direction : "down";
+                gp.currentArea = ds.currentArea != 0 ? ds.currentArea : gp.outside;
+            } else {
+                gp.player.setDefaultPositions();
+                gp.currentArea = gp.outside;
+            }
+            gp.nextArea = gp.currentArea;
+            gp.bossBattleOn = false;
+
             // Rebuild the inventory, skipping any item the game no longer knows about.
             // Slot numbers shift when an item is skipped, so track the new weapon/shield slots.
             gp.player.inventory.clear();
@@ -156,6 +200,12 @@ public class SaveLoad {
         }
     }
 
+            // Rebuild monsters so beaten bosses stay gone. setMonster() only fills
+            // slots, so clear out the ones left over from the title screen first.
+            for (int mapNum = 0; mapNum < gp.maxMap; mapNum++) {
+                java.util.Arrays.fill(gp.monster[mapNum], null);
+            }
+            gp.aSetter.setMonster();
             return true;
 
         } catch(Exception e) {

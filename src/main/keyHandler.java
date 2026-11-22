@@ -1,6 +1,7 @@
 package main;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import entity.Player;
 import object.OBJ_DashItem;
 
 
@@ -8,6 +9,7 @@ public class keyHandler implements KeyListener {
 
     gamePanel gp;
     public boolean upPressed, downPressed, leftPressed, rightPressed, enterPressed, shotKeyPressed, spacePressed, shiftPressed;
+    public boolean enterHeld; // true while Enter is physically down (used for charged attacks)
 
     public keyHandler(gamePanel gp) {
         this.gp = gp;
@@ -58,7 +60,7 @@ public class keyHandler implements KeyListener {
                     if (gp.saveLoad.load()) {
                         gp.ui.titleNote = "";
                         gp.gameState = gp.playState;
-                        gp.playMusic(0);
+                        gp.playAreaMusic();
                     } else {
                         // Stay on the title screen instead of silently starting a blank game
                         gp.ui.titleNote = gp.saveLoad.hasSave() ? "Save file could not be read" : "No save file found";
@@ -89,6 +91,7 @@ public class keyHandler implements KeyListener {
             }
             if(code == KeyEvent.VK_ENTER) {
             enterPressed = true;
+            enterHeld = true;
             }
             if(code == KeyEvent.VK_F) {
                 shotKeyPressed = true;
@@ -124,11 +127,15 @@ public class keyHandler implements KeyListener {
                 }
                 
                 if(hasDash && !gp.playerStatus.isDashing) {
-                    gp.playerStatus.activateDash();
-                    // Consume one dash item
-                    gp.player.inventory.get(dashIndex).amount--;
-                    if(gp.player.inventory.get(dashIndex).amount == 0) {
-                        gp.player.inventory.remove(dashIndex);
+                    if(gp.player.useStamina(Player.DASH_STAMINA)) {
+                        gp.playerStatus.activateDash();
+                        // Consume one dash item
+                        gp.player.inventory.get(dashIndex).amount--;
+                        if(gp.player.inventory.get(dashIndex).amount == 0) {
+                            gp.player.inventory.remove(dashIndex);
+                        }
+                    } else {
+                        gp.ui.addMessage("Too tired to dash!");
                     }
                 }
             }
@@ -242,18 +249,33 @@ public class keyHandler implements KeyListener {
             if(code == KeyEvent.VK_W) {
                 gp.ui.commandNum--;
                 if(gp.ui.commandNum < 0) {
-                    gp.ui.commandNum = 2;
+                    gp.ui.commandNum = 3;
                 }
                 gp.playSE(9);
             }
             if(code == KeyEvent.VK_S) {
                 gp.ui.commandNum++;
-                if(gp.ui.commandNum > 2) {
+                if(gp.ui.commandNum > 3) {
                     gp.ui.commandNum = 0;
                 }
                 gp.playSE(9);
             }
         } 
+        else if(gp.ui.subState == 3) {
+            // Upgrade list: 4 rows
+            if(code == KeyEvent.VK_W) {
+                gp.ui.commandNum = (gp.ui.commandNum + 3) % 4;
+                gp.playSE(9);
+            }
+            if(code == KeyEvent.VK_S) {
+                gp.ui.commandNum = (gp.ui.commandNum + 1) % 4;
+                gp.playSE(9);
+            }
+            if(code == KeyEvent.VK_ESCAPE) {
+                gp.ui.subState = 0;
+                gp.ui.commandNum = 2; // back on "Upgrade"
+            }
+        }
     }
     if(gp.ui.subState == 1) {
         npcInventory(code);
@@ -336,6 +358,7 @@ public void keyReleased(KeyEvent e) {
         shotKeyPressed = false;
     } if(code == KeyEvent.VK_ENTER) {
         enterPressed = false;
+        enterHeld = false;
     } if(code == KeyEvent.VK_SPACE) {
         spacePressed = false;
     } if(code == KeyEvent.VK_SHIFT) { 

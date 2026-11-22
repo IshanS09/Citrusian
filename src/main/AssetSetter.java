@@ -10,6 +10,8 @@ import monster.MON_BossBroccoli;
 import monster.MON_SlimeKing;
 import monster.MON_broccoli;
 import monster.MON_carrot;
+import monster.MON_Onion;
+import monster.MON_Potato;
 import monster.MON_peas;
 import monster.MON_skellPeas;
 import object.OBJ_Chest;
@@ -229,6 +231,11 @@ public class AssetSetter {
         gp.monster[mapNum][i].worldX = 77 * gp.tileSize;
         gp.monster[mapNum][i].worldY = 73 * gp.tileSize;
         i++;
+
+        // New enemies: onions in the northeast clearing, potatoes in the south field.
+        // Fixed slots 11-15 so the respawn checks know where to look.
+        spawnOnions(mapNum);
+        spawnPotatoes(mapNum);
        
         mapNum = 2;
         i++;
@@ -498,13 +505,13 @@ public void respawnPeas(int mapNum) {
         peas.worldY = gp.tileSize * peaSpawns[i][1];
         peas.name = MON_peas.monName;
         peas.alive = true;
-        gp.monster[mapNum][5 + i] = peas; // Slots 5–9
+        gp.monster[mapNum][3 + i] = peas; // Slots 3-7, same slots setMonster() uses
     }
 }
 
 
 public boolean allPeasDead(int mapNum) {
-    for (int i = 5; i < 10; i++) {
+    for (int i = 3; i < 8; i++) {
         entity e = gp.monster[mapNum][i];
         if (e != null && MON_peas.monName.equals(e.name)) {
             if (e.alive && !e.dying) {
@@ -531,4 +538,49 @@ public boolean allBroccoliDead(int mapNum) {
     return !(e != null && MON_broccoli.monName.equals(e.name) && e.alive && !e.dying);
 }
 
+
+// ===== Weeping Onion and Spud Brute =====
+static final int ONION_FIRST_SLOT = 11;
+static final int POTATO_FIRST_SLOT = 14;
+static final int[][] ONION_SPAWNS = { {70, 20}, {73, 21}, {71, 24} };
+static final int[][] POTATO_SPAWNS = { {37, 81}, {42, 82} };
+
+public void spawnOnions(int mapNum) {
+    if(mapNum != MAIN_MAP_ID) return;
+    for (int i = 0; i < ONION_SPAWNS.length; i++) {
+        MON_Onion onion = new MON_Onion(gp);
+        onion.worldX = gp.tileSize * ONION_SPAWNS[i][0];
+        onion.worldY = gp.tileSize * ONION_SPAWNS[i][1];
+        gp.monster[mapNum][ONION_FIRST_SLOT + i] = onion;
+    }
+}
+
+public void spawnPotatoes(int mapNum) {
+    if(mapNum != MAIN_MAP_ID) return;
+    for (int i = 0; i < POTATO_SPAWNS.length; i++) {
+        MON_Potato potato = new MON_Potato(gp);
+        potato.worldX = gp.tileSize * POTATO_SPAWNS[i][0];
+        potato.worldY = gp.tileSize * POTATO_SPAWNS[i][1];
+        gp.monster[mapNum][POTATO_FIRST_SLOT + i] = potato;
+    }
+}
+
+public boolean allOnionsDead(int mapNum) {
+    return allDead(mapNum, ONION_FIRST_SLOT, ONION_SPAWNS.length, MON_Onion.monName);
+}
+
+public boolean allPotatoesDead(int mapNum) {
+    return allDead(mapNum, POTATO_FIRST_SLOT, POTATO_SPAWNS.length, MON_Potato.monName);
+}
+
+private boolean allDead(int mapNum, int firstSlot, int count, String monName) {
+    if(mapNum != MAIN_MAP_ID) return false;
+    for (int i = firstSlot; i < firstSlot + count; i++) {
+        entity e = gp.monster[mapNum][i];
+        if (e != null && monName.equals(e.name) && e.alive && !e.dying) {
+            return false;
+        }
+    }
+    return true;
+}
 }

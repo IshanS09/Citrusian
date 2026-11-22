@@ -64,6 +64,11 @@ public class gamePanel extends JPanel implements Runnable {
     boolean waitingToRespawnBroccoli = false;
     int broccoliRespawnCounter = 0;
 
+    // Onions and potatoes come back 10 seconds after the whole group is beaten
+    int onionRespawnCounter = 0;
+    int potatoRespawnCounter = 0;
+    static final int NEW_ENEMY_RESPAWN_FRAMES = 600;
+
     public int frameCount = 0;
 
     // Player instance
@@ -200,6 +205,10 @@ public class gamePanel extends JPanel implements Runnable {
     }
 
     public void setupGame() {
+        // Fresh run: no bosses beaten yet (a loaded save sets these again)
+        data.Progress.maliBrocDefeated = false;
+        data.Progress.baronRotjawDefeated = false;
+        data.Progress.peaKingDefeated = false;
         aSetter.setObject();     
         aSetter.setNPC();   
         aSetter.setMonster();
@@ -347,6 +356,24 @@ public class gamePanel extends JPanel implements Runnable {
             } else {
                    waitingToRespawnBroccoli = false;
                    broccoliRespawnCounter = 0;
+            }
+
+            // === Onion and potato respawn ===
+            if (aSetter.allOnionsDead(currentMap)) {
+                if (++onionRespawnCounter >= NEW_ENEMY_RESPAWN_FRAMES) {
+                    aSetter.spawnOnions(currentMap);
+                    onionRespawnCounter = 0;
+                }
+            } else {
+                onionRespawnCounter = 0;
+            }
+            if (aSetter.allPotatoesDead(currentMap)) {
+                if (++potatoRespawnCounter >= NEW_ENEMY_RESPAWN_FRAMES) {
+                    aSetter.spawnPotatoes(currentMap);
+                    potatoRespawnCounter = 0;
+                }
+            } else {
+                potatoRespawnCounter = 0;
             }
             
         }
@@ -529,6 +556,18 @@ public class gamePanel extends JPanel implements Runnable {
         // Draw world coordinates
         g2.setColor(java.awt.Color.WHITE);
         g2.drawString("X: " + player.worldX/64 + "  Y: " + player.worldY/64, screenX + 10, screenY - 10);
+    }
+
+    /** Starts the music for whichever area the player is in. */
+    public void playAreaMusic() {
+        stopMusic();
+        if (currentArea == inside) {
+            playMusic(25);
+        } else if (currentArea == dungeon) {
+            playMusic(18);
+        } else {
+            playMusic(0);
+        }
     }
 
     public void changeArea() {

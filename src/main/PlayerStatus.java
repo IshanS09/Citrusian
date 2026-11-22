@@ -8,6 +8,7 @@ public class PlayerStatus {
     public boolean invisibilityActive = false;
     public boolean isDashing = false;
     public boolean regenerationActive = false;
+    private int tearGasTimer = 0;   // frames left of the onion's slow effect
     
     // Status effect timers (in frames, 60 fps)
     private int speedBoostTimer = 0;
@@ -31,6 +32,10 @@ public class PlayerStatus {
     }
     
     public void update() {
+        if(tearGasTimer > 0) {
+            tearGasTimer--;
+        }
+
         // Update speed boost
         if(speedBoostActive) {
             speedBoostTimer++;
@@ -166,6 +171,23 @@ public class PlayerStatus {
         gp.ui.addMessage("Enemies Frozen!");
     }
     
+    // ===== TEAR GAS (Weeping Onion) =====
+    /** Called every frame the player stands in a cloud; keeps the slow going a bit after leaving. */
+    public void applyTearGas(int frames) {
+        if(tearGasTimer == 0) {
+            gp.ui.addMessage("Your eyes are watering! (slowed)");
+        }
+        tearGasTimer = Math.max(tearGasTimer, frames);
+    }
+
+    public boolean isSlowed() {
+        return tearGasTimer > 0;
+    }
+
+    public void clearEffects() {
+        tearGasTimer = 0;
+    }
+
     // Helper method to check if player is invisible (for monster AI)
     public boolean isPlayerInvisible() {
         return invisibilityActive;

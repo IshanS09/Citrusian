@@ -32,4 +32,20 @@ public class DataStorage implements Serializable {
     int mapObjectWorldY[][];
     String mapObjectLootNames[][];
     boolean mapObjectOpened[][];
+
+    // Added later. Old saves load with these left at false/0/null,
+    // and SaveLoad falls back to the starting spot when hasPosition is false.
+    boolean hasPosition;
+    int currentMap;
+    int worldX;
+    int worldY;
+    String direction;
+    int currentArea;
+    boolean maliBrocDefeated;
+    boolean baronRotjawDefeated;
+    boolean peaKingDefeated;
+    int stamina;
+    int seedUpgrades;
+    int staminaUpgrades;
+    int parryUpgrades;
 }

@@ -8,7 +8,11 @@ Play as the **Lone Orange**, a resilient survivor on the Isle of Nectar. The Rot
 - Explore an open world with dungeons, boss fights, and NPCs
 - Collect weapons, shields, and power-ups (dash, invisibility, fire seeds, and more)
 - Fight bosses including Boss Broccoli (2-phase), Baron Rotjaw, and the Slime King
-- Save/load system, cutscenes, lighting engine, and pathfinding AI
+- Charged attacks that change by weapon: swords lunge, axes knock enemies back harder, pickaxes hit a wider area
+- A stamina bar for dashing, guarding and charged attacks
+- Spend Crop Coins at the merchant on upgrades: more fire seeds, more stamina, easier parries, gear repair
+- Watch out for the Weeping Onion's tear gas and the Spud Brute's charge
+- Save/load system that remembers where you are, cutscenes, lighting engine, and pathfinding AI
 
 ## Tech
 - Built in Java using custom game engine (no libraries)
@@ -19,10 +23,10 @@ Play as the **Lone Orange**, a resilient survivor on the Isle of Nectar. The Rot
 | Key | Action |
 |---|---|
 | W A S D | Move (and move through menus) |
-| Enter | Attack, talk, confirm, use selected item |
-| Space | Guard with shield (time it right to parry) |
+| Enter | Attack, talk, confirm, use selected item. Keep holding after a swing to charge, let go when the bar turns gold |
+| Space | Guard with shield (time it right to parry). Uses stamina |
 | F | Shoot fire seed |
-| Shift | Dash (uses a Dash item) |
+| Shift | Dash (uses a Dash item and stamina) |
 | C | Open or close the character and inventory screen |
 | O | Save the game |
 | Esc | Options |

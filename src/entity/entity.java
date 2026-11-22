@@ -576,7 +576,10 @@ public String getOppositeDirection(String direction) {
             }
         } else {
             int monsterIndex = gp.cChecker.checkEntity(this, gp.monster);
-            gp.player.damageMonster(monsterIndex, this, attack, currentWeapon.knockBackPower);
+            // The player's swing may be a charged one, which hits harder
+            int swingAttack = (this == gp.player) ? gp.player.strikeAttack() : attack;
+            int swingKnockBack = (this == gp.player) ? gp.player.strikeKnockBack() : currentWeapon.knockBackPower;
+            gp.player.damageMonster(monsterIndex, this, swingAttack, swingKnockBack);
 
             int iTileIndex = gp.cChecker.checkEntity(this, gp.iTile);
             gp.player.damageInteractiveTile(iTileIndex);
@@ -617,15 +620,17 @@ public String getOppositeDirection(String direction) {
             if (shield != null && shield.durability <= 0) {
                 damage /= 2; // Shield is broken, reduced effect
             } else {
-                if (gp.player.guardCounter < 10) {
+                if (gp.player.guardCounter < gp.player.getParryWindow()) {
                     damage = 0;
                     gp.playSE(16);
+                    gp.player.onParry();
                     setKnockBack(this, gp.player, knockBackPower);
                     offBalance = true;
                     spriteCounter -= 60;
                 } else {
                     damage /= 3;
                     gp.playSE(15);
+                    gp.player.onBlock();
                 }
 
                 // Reduce durability only if damage was blocked and shield exists
@@ -746,7 +751,10 @@ public void draw(Graphics2D g2) {
                 }
                 break;
         }
-        
+
+        // Lets a monster show a special frame (wind-up, gas puff) without faking an attack
+        image = overrideImage(image);
+
         // 🟡 Invincibility fade
         if(invincible) { 
             hpBarOn = true; 
@@ -771,6 +779,21 @@ public void draw(Graphics2D g2) {
     }
 }
 
+
+    /** Override to swap in a different frame for special states. Default keeps the normal frame. */
+    protected BufferedImage overrideImage(BufferedImage image) {
+        return image;
+    }
+
+    /** Picks the attack frame (1 or 2) that matches the current direction. */
+    protected BufferedImage attackFrame(int frame) {
+        switch (direction) {
+            case "up":    return frame == 1 ? AttackUp1 : AttackUp2;
+            case "left":  return frame == 1 ? AttackLeft1 : AttackLeft2;
+            case "right": return frame == 1 ? AttackRight1 : AttackRight2;
+            default:      return frame == 1 ? AttackDown1 : AttackDown2;
+        }
+    }
 
     public void dyingAnimation(Graphics2D g2) {
         dyingCounter++;

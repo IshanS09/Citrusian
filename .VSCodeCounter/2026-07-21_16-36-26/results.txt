@@ -1,0 +1,118 @@
+Date : 2026-07-21 16:36:26
+Directory : /Users/ishansingh/Desktop/Projects/Citrusian
+Total : 82 files,  7574 codes, 296 comments, 1545 blanks, all 9415 lines
+
+Languages
++----------+------------+------------+------------+------------+------------+
+| language | files      | code       | comment    | blank      | total      |
++----------+------------+------------+------------+------------+------------+
+| Java     |         81 |      7,560 |        296 |      1,539 |      9,395 |
+| Markdown |          1 |         14 |          0 |          6 |         20 |
++----------+------------+------------+------------+------------+------------+
+
+Directories
++--------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                                       | files      | code       | comment    | blank      | total      |
++--------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                                          |         82 |      7,574 |        296 |      1,545 |      9,415 |
+| . (Files)                                                                                  |          1 |         14 |          0 |          6 |         20 |
+| src                                                                                        |         81 |      7,560 |        296 |      1,539 |      9,395 |
+| src/ai                                                                                     |          2 |        157 |          1 |         37 |        195 |
+| src/data                                                                                   |          3 |        147 |          1 |         30 |        178 |
+| src/entity                                                                                 |          8 |      1,791 |         73 |        287 |      2,151 |
+| src/environment                                                                            |          2 |        155 |          7 |         31 |        193 |
+| src/main                                                                                   |         14 |      3,134 |        152 |        572 |      3,858 |
+| src/monster                                                                                |          8 |        880 |         58 |        198 |      1,136 |
+| src/object                                                                                 |         37 |        995 |          3 |        311 |      1,309 |
+| src/tile                                                                                   |          2 |        141 |          1 |         37 |        179 |
+| src/tile_interactive                                                                       |          5 |        160 |          0 |         36 |        196 |
++--------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++--------------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+
+| filename                                                                                   | language | code       | comment    | blank      | total      |
++--------------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+
+| /Users/ishansingh/Desktop/Projects/Citrusian/README.md                                     | Markdown |         14 |          0 |          6 |         20 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/ai/Node.java                              | Java     |         16 |          0 |          6 |         22 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/ai/PathFinder.java                        | Java     |        141 |          1 |         31 |        173 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/data/DataStorage.java                     | Java     |         27 |          0 |          6 |         33 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/data/Progress.java                        | Java     |          6 |          0 |          3 |          9 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/data/SaveLoad.java                        | Java     |        114 |          1 |         21 |        136 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/entity/Particle.java                      | Java     |         42 |          0 |         15 |         57 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/entity/Player.java                        | Java     |        606 |          9 |         88 |        703 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/entity/PlayerDummy.java                   | Java     |         20 |          0 |          7 |         27 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/entity/Projectile.java                    | Java     |         59 |          1 |         11 |         71 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/entity/entity.java                        | Java     |        807 |         57 |        106 |        970 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/entity/npc_apple.java                     | Java     |         68 |          0 |         20 |         88 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/entity/npc_bigRock.java                   | Java     |        115 |          0 |         26 |        141 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/entity/npc_lemon.java                     | Java     |         74 |          6 |         14 |         94 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/environment/EnvironmentManager.java       | Java     |         19 |          0 |          5 |         24 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/environment/Lighting.java                 | Java     |        136 |          7 |         26 |        169 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/main/AssetSetter.java                     | Java     |        465 |          0 |         70 |        535 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/main/CollisionChecker.java                | Java     |        161 |          9 |         40 |        210 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/main/CutsceneManager.java                 | Java     |        413 |         21 |         89 |        523 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/main/EntityGenerator.java                 | Java     |         82 |          0 |          7 |         89 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/main/EventHandler.java                    | Java     |        114 |          1 |         18 |        133 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/main/EventRect.java                       | Java     |          6 |          0 |          4 |         10 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/main/FullscreenManager.java               | Java     |         50 |          6 |         14 |         70 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/main/Main.java                            | Java     |         26 |          0 |         14 |         40 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/main/PlayerStatus.java                    | Java     |        147 |         18 |         26 |        191 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/main/Sound.java                           | Java     |         75 |          1 |         18 |         94 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/main/UI.java                              | Java     |        841 |         51 |        160 |      1,052 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/main/UtilityTool.java                     | Java     |         12 |          0 |          6 |         18 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/main/gamePanel.java                       | Java     |        436 |         37 |         84 |        557 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/main/keyHandler.java                      | Java     |        306 |          8 |         22 |        336 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/monster/MON_BaronRotjaw.java              | Java     |        181 |         19 |         40 |        240 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/monster/MON_BossBroccoli.java             | Java     |        125 |         10 |         21 |        156 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/monster/MON_MiniSlime.java                | Java     |         52 |          3 |         14 |         69 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/monster/MON_SlimeKing.java                | Java     |        203 |         24 |         43 |        270 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/monster/MON_broccoli.java                 | Java     |         96 |          2 |         19 |        117 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/monster/MON_carrot.java                   | Java     |         78 |          0 |         16 |         94 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/monster/MON_peas.java                     | Java     |         73 |          0 |         22 |         95 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/monster/MON_skellPeas.java                | Java     |         72 |          0 |         23 |         95 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/object/OBJ_Chest.java                     | Java     |         46 |          0 |         11 |         57 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/object/OBJ_CitrusianHelmet.java           | Java     |         11 |          0 |          5 |         16 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/object/OBJ_DashItem.java                  | Java     |         25 |          2 |          8 |         35 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/object/OBJ_FirePotion.java                | Java     |         28 |          0 |          9 |         37 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/object/OBJ_FireSeed.java                  | Java     |         58 |          0 |         11 |         69 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/object/OBJ_Fireskull.java                 | Java     |         58 |          0 |          9 |         67 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/object/OBJ_Freeze.java                    | Java     |         26 |          0 |          8 |         34 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/object/OBJ_Invisibility.java              | Java     |         26 |          0 |          8 |         34 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/object/OBJ_Lantern.java                   | Java     |         17 |          0 |          7 |         24 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/object/OBJ_Regeneration.java              | Java     |         25 |          0 |          8 |         33 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/object/OBJ_SpeedBoost.java                | Java     |         26 |          0 |          9 |         35 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/object/OBJ_Tent.java                      | Java     |         25 |          0 |          7 |         32 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/object/OBJ_axe.java                       | Java     |         22 |          0 |          9 |         31 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/object/OBJ_axe_watermelon.java            | Java     |         22 |          0 |          3 |         25 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/object/OBJ_coin.java                      | Java     |         21 |          1 |          9 |         31 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/object/OBJ_door.java                      | Java     |         28 |          0 |         14 |         42 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/object/OBJ_door_bronze.java               | Java     |         28 |          0 |         13 |         41 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/object/OBJ_door_gold.java                 | Java     |         28 |          0 |         13 |         41 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/object/OBJ_door_silver.java               | Java     |         28 |          0 |         13 |         41 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/object/OBJ_heart.java                     | Java     |         24 |          0 |          4 |         28 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/object/OBJ_ironDoor.java                  | Java     |         28 |          0 |         13 |         41 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/object/OBJ_key.java                       | Java     |         34 |          0 |         16 |         50 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/object/OBJ_key_bronze.java                | Java     |         34 |          0 |          9 |         43 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/object/OBJ_key_silver.java                | Java     |         34 |          0 |          9 |         43 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/object/OBJ_mana.java                      | Java     |         23 |          0 |          6 |         29 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/object/OBJ_picaxe.java                    | Java     |         22 |          0 |          7 |         29 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/object/OBJ_pickaxe_pineapple.java         | Java     |         22 |          0 |          4 |         26 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/object/OBJ_potion.java                    | Java     |         28 |          0 |         10 |         38 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/object/OBJ_rock.java                      | Java     |         46 |          0 |          9 |         55 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/object/OBJ_shield_apple.java              | Java     |         17 |          0 |          3 |         20 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/object/OBJ_shield_blue.java               | Java     |         17 |          0 |          8 |         25 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/object/OBJ_shield_default.java            | Java     |         17 |          0 |          8 |         25 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/object/OBJ_shield_dragonfruit.java        | Java     |         17 |          0 |          3 |         20 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/object/OBJ_shield_grape.java              | Java     |         17 |          0 |          4 |         21 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/object/OBJ_sword_banana.java              | Java     |         22 |          0 |          3 |         25 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/object/OBJ_sword_default.java             | Java     |         22 |          0 |          9 |         31 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/object/OBJ_treasure.java                  | Java     |         23 |          0 |         12 |         35 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/tile/Tile.java                            | Java     |          6 |          0 |          5 |         11 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/tile/tileManager.java                     | Java     |        135 |          1 |         32 |        168 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/tile_interactive/IT_destructibleWall.java | Java     |         46 |          0 |          8 |         54 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/tile_interactive/IT_drytree.java          | Java     |         46 |          0 |          8 |         54 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/tile_interactive/IT_metalPlate.java       | Java     |         20 |          0 |          8 |         28 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/tile_interactive/IT_trunk.java            | Java     |         18 |          0 |          7 |         25 |
+| /Users/ishansingh/Desktop/Projects/Citrusian/src/tile_interactive/interactiveTile.java     | Java     |         30 |          0 |          5 |         35 |
+| Total                                                                                      |          |      7,574 |        296 |      1,545 |      9,415 |
++--------------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+
