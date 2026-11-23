@@ -184,6 +184,36 @@ public class AssetSetter {
             i++;
         }
 
+        // Folk of Zest Harbor
+        String[][][] harbor = {
+            {   // Captain Kiwi keeps the lighthouse
+                {"Ahoy! Captain Kiwi, keeper of the lighthouse.", "Long ago, ships sailed in from islands past the\nhorizon. Then the Rotroot Clan took the seas."},
+                {"See that pirate ship off the north shore?\nBaron Rotjaw's. Bring a good shield."},
+            },
+            {   // Lyle the lime, always fishing
+                {"Shh... you'll scare the fish."},
+                {"Nothing's biting since the veggies showed up.\nEven the fish are scared of carrots."},
+                {"Try a charged swing sometime. Hold Enter after\nyou attack. Works on stubborn fish too."},
+            },
+            {   // Penny the peach, who runs a market stall
+                {"Fresh fruit! Well, fresher than the marsh stuff.", "If you need gear, the lemon merchant in his\nhouse on the lake island sells the good stuff."},
+                {"He'll also upgrade your seed pouch and stamina\nif you've got the Crop Coins."},
+            },
+            {   // Coco the coconut, a retired sailor
+                {"I sailed these waters for forty years.\nHard shell, soft heart, that's me."},
+                {"At night the veggies get mean, but they drop\ndouble the coins. Good trade, if you're tough."},
+            },
+        };
+        String[] harborNames = {"Captain Kiwi", "Lyle", "Penny", "Coco"};
+        String[] harborSprites = {"Kiwi", "Lime", "Peach", "Coconut"};
+        int[][] harborSpots = { {117, 32}, {136, 56}, {112, 58}, {127, 58} };
+        for (int v = 0; v < harbor.length; v++) {
+            gp.npc[mapNum][i] = new npc_villager(gp, harborNames[v], harborSprites[v], harbor[v]);
+            gp.npc[mapNum][i].worldX = harborSpots[v][0] * gp.tileSize;
+            gp.npc[mapNum][i].worldY = harborSpots[v][1] * gp.tileSize;
+            i++;
+        }
+
         mapNum = 1;
         i = 0;
         gp.npc[mapNum][i] = new npc_lemon(gp);

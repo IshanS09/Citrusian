@@ -94,6 +94,7 @@ def big_rock():
 
 
 # ---------------------------------------------------------------- Citrus Grove villagers (24x24)
+KIWI = rgb('8a6a3a'); LIME = rgb('8bc34a'); PEACH = rgb('f7a072'); COCO = rgb('6b4a2e')
 PEAR = rgb('c9d84a'); STRAW = rgb('e8c46a'); CHERRY = rgb('d62f45'); PLUM = rgb('7a4aa0'); APRON = rgb('f2ede0')
 
 
@@ -101,7 +102,8 @@ def villager(kind, view, frame):
     c = Canvas(24)
     side = view == 'left'
     step = frame == 2
-    leg = darker({'pear': PEAR, 'cherry': CHERRY, 'plum': PLUM}[kind], .4)
+    leg = darker({'pear': PEAR, 'cherry': CHERRY, 'plum': PLUM, 'kiwi': KIWI, 'lime': LIME,
+                  'peach': PEACH, 'coconut': COCO}[kind], .4)
     if side:
         if step:
             c.rect(11, 19, 12, 21, leg, 'leg')
@@ -127,6 +129,40 @@ def villager(kind, view, frame):
         c.pts([(cx + 4, 1), (cx + 5, 1), (cx + 4, 2), (cx + 5, 0)], LEAF, 'leaf')
         c.ellipse(cx - 3, 2, 1.6, 1.6, CHERRY, 'twin')     # a tiny cherry buddy on the stem
         face_y = 12
+    elif kind == 'kiwi':  # lighthouse keeper in a captain's cap
+        c.ellipse(cx, 13, 6.6, 6.2, KIWI, 'body'); c.shade('body', KIWI)
+        for x, y in ((cx - 4, 12), (cx + 3, 15), (cx - 1, 17), (cx + 4, 10), (cx - 3, 16)):
+            c.set(x, y, darker(KIWI, .3), 'body')                 # fuzz
+        c.rect(cx - 5, 5, cx + 5, 7, rgb('2c3e75'), 'cap'); c.rect(cx - 6, 7, cx + 3, 7, rgb('1c2850'), 'cap')
+        c.shade('cap', rgb('2c3e75'))
+        c.pts([(cx, 6)], rgb('e8b931'))
+        face_y = 11
+    elif kind == 'lime':  # fisher in a bucket hat, rod over the shoulder
+        c.ellipse(cx, 13, 6.4, 6, LIME, 'body'); c.shade('body', LIME)
+        for x, y in ((cx - 3, 15), (cx + 3, 12), (cx, 17)):
+            c.set(x, y, lighter(LIME, .35), 'body')
+        c.rect(cx - 5, 5, cx + 5, 7, rgb('c9b48a'), 'hat'); c.rect(cx - 3, 3, cx + 3, 5, rgb('c9b48a'), 'hat')
+        c.shade('hat', rgb('c9b48a'))
+        if view != 'up':
+            rx = 20 if not side else 3
+            c.line(rx, 3, rx, 21, rgb('7a4a28'), 'rod'); c.shade('rod', rgb('7a4a28'))
+            c.line(rx + (1 if not side else -1), 3, rx + (2 if not side else -2), 8, rgb('dfe9f0'), 'line')
+        face_y = 11
+    elif kind == 'peach':  # market vendor with a green bandana
+        c.ellipse(cx, 13, 6.6, 6.4, PEACH, 'body'); c.shade('body', PEACH)
+        c.line(cx, 7, cx, 19, darker(PEACH, .12), 'body')         # the peach crease
+        c.ellipse(cx, 6.5, 5, 2.2, rgb('3f8f3a'), 'bandana'); c.shade('bandana', rgb('3f8f3a'))
+        c.pts([(cx + 2, 3), (cx + 3, 2), (cx + 4, 3)], LEAF, 'leaf')
+        face_y = 11
+    elif kind == 'coconut':  # sailor in a striped shirt
+        c.ellipse(cx, 12, 6.4, 6, COCO, 'body'); c.shade('body', COCO)
+        for x, y in ((cx - 3, 8), (cx + 2, 7), (cx + 4, 11), (cx - 5, 12)):
+            c.set(x, y, darker(COCO, .3), 'body')                 # hairy shell
+        for y in range(15, 19):
+            for x in range(cx - 5, cx + 6):
+                if c.tag[y][x] == 'body':
+                    c.set(x, y, rgb('2e6fb0') if y % 2 else rgb('f2f2f2'), 'shirt')
+        face_y = 10
     else:  # plum in an apron and headscarf
         c.ellipse(cx, 12.5, 6.6, 6.6, PLUM, 'body'); c.shade('body', PLUM)
         if view != 'up':
@@ -156,7 +192,8 @@ def build(out):
         made[f'AppleRight{f}'] = made[f'AppleLeft{f}'].mirrored()
         made[f'lemon{f}'] = lemon(f)
     made['bigRock'] = big_rock()
-    for kind, nm in (('pear', 'Pear'), ('cherry', 'Cherry'), ('plum', 'Plum')):
+    for kind, nm in (('pear', 'Pear'), ('cherry', 'Cherry'), ('plum', 'Plum'), ('kiwi', 'Kiwi'),
+                     ('lime', 'Lime'), ('peach', 'Peach'), ('coconut', 'Coconut')):
         for f in (1, 2):
             made[f'{nm}Down{f}'] = villager(kind, 'down', f)
             made[f'{nm}Up{f}'] = villager(kind, 'up', f)

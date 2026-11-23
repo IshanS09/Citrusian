@@ -60,13 +60,15 @@ public class npc_villager extends entity {
         }
     }
 
+    private int nextSet = 0;
+
     @Override
     public void speak() {
+        // The dialogue box reads dialogueSet while it draws, so set it to the lines
+        // we want to show now and remember the next set separately.
         facePlayer();
-        startDialogue(this, dialogueSet);
-        dialogueSet++;
-        if (dialogues[dialogueSet][0] == null) {
-            dialogueSet = 0;
-        }
+        int set = nextSet;
+        startDialogue(this, set);
+        nextSet = dialogues[set + 1][0] == null ? 0 : set + 1;
     }
 }
