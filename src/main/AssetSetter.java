@@ -5,6 +5,7 @@ import entity.entity;
 import entity.npc_apple;
 import entity.npc_bigRock;
 import entity.npc_lemon;
+import entity.npc_villager;
 import monster.MON_BaronRotjaw;
 import monster.MON_BossBroccoli;
 import monster.MON_SlimeKing;
@@ -156,6 +157,32 @@ public class AssetSetter {
         gp.npc[mapNum][i].worldX = 62 * gp.tileSize;
         gp.npc[mapNum][i].worldY = 45 * gp.tileSize;
         i++;
+
+        // Villagers of the Citrus Grove
+        String[][][] grove = {
+            {   // Pearl the pear, who keeps the orchard
+                {"Welcome to the Citrus Grove! I'm Pearl, I look after\nthe orchard.", "See the spring by the path? Walk past it and\nyou'll feel brand new."},
+                {"These oranges are the sweetest on the island.\nWell... second sweetest, after you."},
+            },
+            {   // Pip the cherry, who is not supposed to go to the marsh
+                {"Mom says never go to the Rotting Marsh.", "...but there's treasure at the very end of\nthe mud trail. I saw the chest!"},
+                {"Careful with the green slime on the paths.\nIt sticks to your feet!"},
+            },
+            {   // Old Prunella the plum
+                {"Zest Harbor is just up the hill to the north.\nThe market there has everything."},
+                {"The veggies never come to the grove at night.\nSomething about the spring, I think."},
+                {"I'm not old, dear. I'm a plum. We get\nwrinkly when we're wise."},
+            },
+        };
+        String[] names = {"Pearl", "Pip", "Prunella"};
+        String[] sprites = {"Pear", "Cherry", "Plum"};
+        int[][] spots = { {104, 113}, {119, 112}, {116, 121} };
+        for (int v = 0; v < grove.length; v++) {
+            gp.npc[mapNum][i] = new npc_villager(gp, names[v], sprites[v], grove[v]);
+            gp.npc[mapNum][i].worldX = spots[v][0] * gp.tileSize;
+            gp.npc[mapNum][i].worldY = spots[v][1] * gp.tileSize;
+            i++;
+        }
 
         mapNum = 1;
         i = 0;

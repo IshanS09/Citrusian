@@ -93,6 +93,60 @@ def big_rock():
     return c
 
 
+# ---------------------------------------------------------------- Citrus Grove villagers (24x24)
+PEAR = rgb('c9d84a'); STRAW = rgb('e8c46a'); CHERRY = rgb('d62f45'); PLUM = rgb('7a4aa0'); APRON = rgb('f2ede0')
+
+
+def villager(kind, view, frame):
+    c = Canvas(24)
+    side = view == 'left'
+    step = frame == 2
+    leg = darker({'pear': PEAR, 'cherry': CHERRY, 'plum': PLUM}[kind], .4)
+    if side:
+        if step:
+            c.rect(11, 19, 12, 21, leg, 'leg')
+        else:
+            c.rect(9, 19, 10, 21, leg, 'leg'); c.rect(13, 19, 14, 21, leg, 'leg')
+    else:
+        c.rect(8, 19, 9, 21 - (1 if step else 0), leg, 'leg'); c.rect(14, 19, 15, 21, leg, 'leg')
+    cx = 12 if not side else 11
+
+    if kind == 'pear':
+        c.ellipse(cx, 14, 6.5, 5.6, PEAR, 'body'); c.ellipse(cx, 8.5, 4, 4, PEAR, 'body')
+        c.shade('body', PEAR)
+        # straw hat
+        c.rect(cx - 6, 5, cx + 6, 5, STRAW, 'hat'); c.rect(cx - 3, 2, cx + 3, 4, STRAW, 'hat')
+        c.shade('hat', STRAW)
+        c.line(cx - 3, 4, cx + 3, 4, rgb('c0392b'), 'band')
+        face_y = 10
+    elif kind == 'cherry':
+        c.ellipse(cx, 13, 6.4, 6.2, CHERRY, 'body'); c.shade('body', CHERRY)
+        c.pts([(cx - 4, 8), (cx - 5, 7)], lighter(CHERRY, .55), 'body')
+        # twin stems with a leaf
+        c.line(cx, 7, cx - 2, 2, rgb('5d3a22'), 'stem'); c.line(cx, 7, cx + 3, 2, rgb('5d3a22'), 'stem')
+        c.pts([(cx + 4, 1), (cx + 5, 1), (cx + 4, 2), (cx + 5, 0)], LEAF, 'leaf')
+        c.ellipse(cx - 3, 2, 1.6, 1.6, CHERRY, 'twin')     # a tiny cherry buddy on the stem
+        face_y = 12
+    else:  # plum in an apron and headscarf
+        c.ellipse(cx, 12.5, 6.6, 6.6, PLUM, 'body'); c.shade('body', PLUM)
+        if view != 'up':
+            c.rect(cx - 3 if not side else cx - 5, 14, cx + 3 if not side else cx - 1, 18, APRON, 'apron')
+            c.shade('apron', APRON)
+        c.ellipse(cx, 6.5, 5.4, 2.8, rgb('e0605a'), 'scarf'); c.shade('scarf', rgb('e0605a'))
+        c.pts([(cx + 4, 8), (cx + 5, 9)], rgb('e0605a'), 'scarf')
+        face_y = 11
+    c.outline()
+    if view == 'down':
+        c.pts([(cx - 3, face_y), (cx + 2, face_y)], K)
+        c.pts([(cx - 3, face_y - 1), (cx + 2, face_y - 1)], WHITE)
+        c.pts([(cx - 1, face_y + 2), (cx, face_y + 2)], K)
+        c.pts([(cx - 5, face_y + 1), (cx + 4, face_y + 1)], rgb('f47e8a'))
+    elif side:
+        c.pts([(cx - 4, face_y)], K); c.pts([(cx - 4, face_y - 1)], WHITE)
+        c.pts([(cx - 6, face_y + 2), (cx - 5, face_y + 2)], K)
+    return c
+
+
 def build(out):
     made = {}
     for f in (1, 2):
@@ -102,6 +156,12 @@ def build(out):
         made[f'AppleRight{f}'] = made[f'AppleLeft{f}'].mirrored()
         made[f'lemon{f}'] = lemon(f)
     made['bigRock'] = big_rock()
+    for kind, nm in (('pear', 'Pear'), ('cherry', 'Cherry'), ('plum', 'Plum')):
+        for f in (1, 2):
+            made[f'{nm}Down{f}'] = villager(kind, 'down', f)
+            made[f'{nm}Up{f}'] = villager(kind, 'up', f)
+            made[f'{nm}Left{f}'] = villager(kind, 'left', f)
+            made[f'{nm}Right{f}'] = made[f'{nm}Left{f}'].mirrored()
     for name, cv in made.items():
         cv.save(os.path.join(out, name + '.png'))
     return made

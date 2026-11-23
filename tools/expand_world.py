@@ -233,14 +233,12 @@ for x in (41, 42):
     while (x, y) not in interior:
         g[y][x] = BRIDGE
         y += 1
-# marsh to grove (rows 116-117)
+# marsh to grove (rows 116-117): planks from the marsh's last land tile to the grove's first
 for y in (116, 117):
-    x = 76
-    while x < N and (x, y) not in interior:
-        x += 1
-    for xx in range(70, x + 1):
-        if g[y][xx] in (WATER, WATER2, SHORE):
-            g[y][xx] = BOARDWALK
+    west = max(x for (x, yy) in interior & marsh if yy == y)
+    east = min(x for (x, yy) in interior & grove if yy == y)
+    for xx in range(west + 1, east):
+        g[y][xx] = BOARDWALK
 
 # ------------------------------------------------------------------ checks
 for (x, y) in [(21, 45), (58, 85), (63, 33), (77, 16), (81, 42), (22, 45), (57, 85), (77, 17), (81, 43), (64, 61)]:
@@ -291,6 +289,20 @@ def open_spot(cx, cy, size=2):
 
 for name, p in (('spring event', spring_event), ('marsh chest', chest), ('harbor square', (115, 58)), ('lighthouse path', (117, 31))):
     assert p in r, f'{name} {p} not reachable'
+# each bridge must work on its own: marsh reachable from the south beach,
+# and grove reachable from the marsh, without any other route
+def reach_without(start, blocked):
+    saved = {p: g[p[1]][p[0]] for p in blocked}
+    for (x, y) in blocked:
+        g[y][x] = WATER
+    out = reach(start)
+    for (x, y), t in saved.items():
+        g[y][x] = t
+    return out
+east_bridge = {(x, y) for y in (55, 56) for x in range(85, 105) if g[y][x] == BOARDWALK}
+grove_bridge = {(x, y) for y in (116, 117) for x in range(60, 100) if g[y][x] == BOARDWALK}
+assert chest in reach_without((41, 87), east_bridge | grove_bridge), 'south bridge does not reach the marsh'
+assert spring_event in reach_without((41, 87), east_bridge), 'marsh-grove bridge is broken'
 # the grove must also be reachable from the harbor without going through the marsh
 g_saved = {(x, y): g[y][x] for x in range(70, 90) for y in (116, 117)}
 for (x, y) in g_saved:
@@ -299,6 +311,7 @@ assert spring_event in reach((115, 58)), 'harbor and grove are not connected'
 for (x, y), t in g_saved.items():
     g[y][x] = t
 onions = [open_spot(22, 114), open_spot(33, 110), open_spot(48, 113)]
+villagers = [open_spot(104, 113, 1), open_spot(119, 112, 1), open_spot(116, 121, 1)]
 potatoes = [open_spot(55, 124), open_spot(40, 128)]
 save('worldV5', g)
 print('world is now', N, 'x', N)
@@ -306,4 +319,5 @@ print('healing spring event:', spring_event)
 print('marsh chest:', chest)
 print('marsh onions:', onions)
 print('marsh potatoes:', potatoes)
+print('grove villagers:', villagers)
 print('reachable tiles from the start:', len(seen), '->', len(r))
