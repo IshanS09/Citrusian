@@ -25,8 +25,8 @@ public class gamePanel extends JPanel implements Runnable {
     public final int maxScreenRow = 14;
     public final int screenWidth = tileSize * maxScreenCol; // 768 pixels wide
     public final int screenHeight = tileSize * maxScreenRow; // 576 pixels tall
-    public final int maxWorldCol = 140; // 140 tiles across (grown east for Zest Harbor and Citrus Grove)
-    public final int maxWorldRow = 140; // 140 tiles down (grown south for the Rotting Marsh)
+    public final int maxWorldCol = 152; // grown east for Zest Harbor and Citrus Grove, with open sea past the shore
+    public final int maxWorldRow = 152; // grown south for the Rotting Marsh, with open sea past the shore
     public final int maxMap = 10;
     public int currentMap = 0;  
 

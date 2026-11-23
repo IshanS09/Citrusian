@@ -15,7 +15,7 @@ It prints the coordinates the Java code uses (spring, chest, enemy spawns).
 import math, random
 from collections import deque
 
-OLD, N = 100, 140
+OLD, N = 100, 152   # 152 leaves 12+ tiles of sea past every new shore, so the camera never shows the edge
 MAPS = ['worldV5', 'interior3', 'dungeonFIN', 'dungeonL2', 'BRJmap', 'interiorPK3']
 
 # tile ids (tile/tileManager.java)
