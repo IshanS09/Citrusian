@@ -483,6 +483,8 @@ public class entity {
         }
     }
     public void checkStartChasingOrNot(entity target, int distance, int rate) {
+        // Fog hides you: veggies have to get closer before they notice
+        if (gp.eManager.weather != null) distance = gp.eManager.weather.sightRange(distance);
         if(getTileDistance(target) < distance) {
             int i = new Random().nextInt(rate);
             if(i == 0) {

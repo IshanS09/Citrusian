@@ -26,6 +26,15 @@ public class OBJ_FireSeed extends Projectile {
     getImage();
     }
 
+    @Override
+    public void set(int worldX, int worldY, String direction, boolean alive, entity user) {
+        super.set(worldX, worldY, direction, alive, user);
+        // Rain dampens fire: slower, and it fizzles out sooner
+        boolean wet = gp.eManager.weather != null && gp.eManager.weather.isRaining();
+        speed = wet ? 3 : 5;
+        if (wet) life = maxLife * 2 / 3;
+    }
+
     public void getImage() {
         up1 = setup("/res/projectile/SeedUp1", gp.tileSize, gp.tileSize);
         up2 = setup("/res/projectile/SeedUp2", gp.tileSize, gp.tileSize);

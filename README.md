@@ -14,6 +14,7 @@ Play as the **Lone Orange**, a resilient survivor on the Isle of Nectar. The Rot
 - A bigger world: sail east to Zest Harbor, heal at the spring in the Citrus Grove, and brave the Rotting Marsh for its treasure
 - Watch out for the Weeping Onion's tear gas and the Spud Brute's charge
 - Veggies get tougher at night but drop double coins
+- Weather: rain and storms slow your fire seeds, fog cuts how far you (and the veggies) can see, and the Rotting Marsh is always misty
 - Side quests from the old apple, with a hidden Golden Seed and a sword you can't buy
 - New Game+ after the credits: keep your level and gear, face tougher veggies
 - Save/load system that remembers where you are, cutscenes, lighting engine, and pathfinding AI
@@ -48,6 +49,8 @@ java -cp bin main.Main
 On Windows PowerShell, compile with `javac -d bin (Get-ChildItem -Recurse src -Filter *.java).FullName`, then copy `src\res` into `bin\` and run the same `java` command.
 
 The game writes `save.dat` to the folder you run it from.
+
+To test a weather type, start the game with it: `java -Dcitrusian.weather=storm -cp bin main.Main` (also `rain`, `fog` or `clear`).
 
 ## Download
 Play on itch.io: [ishans09.itch.io/citrusian](https://ishans09.itch.io/citrusian)

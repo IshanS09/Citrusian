@@ -96,7 +96,7 @@ public class MON_Onion extends entity {
         }
 
         int distance = getTileDistance(gp.player);
-        if (distance < 8) {
+        if (distance < gp.eManager.weather.sightRange(8)) {
             moveTowardPlayer(45);
         } else {
             getRandomDirection();

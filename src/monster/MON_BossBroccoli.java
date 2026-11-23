@@ -20,7 +20,7 @@ public class MON_BossBroccoli extends entity {
     name = monName;
     defaultSpeed = 1;
     speed = defaultSpeed;
-    maxLife = 6;
+    maxLife = 75;
     life = maxLife;
     attack = 10;
     defense = 3;

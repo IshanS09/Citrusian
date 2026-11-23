@@ -42,7 +42,7 @@ public class gamePanel extends JPanel implements Runnable {
     public keyHandler keyH = new keyHandler(this); 
     Thread gameThread;
     public PathFinder pFinder = new PathFinder(this); // Initialize PathFinder with gamePanel instance
-    EnvironmentManager eManager = new EnvironmentManager(this); // Initialize EnvironmentManager with gamePanel instance
+    public EnvironmentManager eManager = new EnvironmentManager(this); // Initialize EnvironmentManager with gamePanel instance
     SaveLoad saveLoad = new SaveLoad(this); // Initialize SaveLoad with gamePanel instance
     public EntityGenerator eGenerator = new EntityGenerator(this); // Initialize EntityGenerator with gamePanel instance
     final int FPS = 60; // Frames per second
@@ -75,6 +75,9 @@ public class gamePanel extends JPanel implements Runnable {
     // Player instance
     Sound music = new Sound(); // Initialize Sound instance
     Sound se = new Sound(); // Initialize Sound instance
+    Sound weatherSound = new Sound(); // Rain loop, separate so it can play under the music
+    boolean rainPlaying = false;
+    int rainVolume = -1;
     public Player player = new Player(this, keyH);
     public entity obj[][] = new entity[maxMap][20]; // Array to hold game objects
     public entity npc[][] = new entity[maxMap][10]; // Array to hold entities
@@ -246,6 +249,7 @@ public class gamePanel extends JPanel implements Runnable {
             aSetter.setObject();
             aSetter.setInteractiveTile();
             eManager.lighting.resetDay();
+            eManager.weather.reset();
         }
     }
 
@@ -518,6 +522,9 @@ public class gamePanel extends JPanel implements Runnable {
             }  
             entityList.clear();
 
+            // Rain and fog sit over the world but under the night darkness
+            eManager.drawWeather(g2);
+
             // Draw environment lighting in scaled context for windowed mode
             if (!isFullScreen) {
                 eManager.draw(g2);
@@ -581,6 +588,23 @@ public class gamePanel extends JPanel implements Runnable {
     public void playSE(int i) {
         se.setFile(i);
         se.play();
+    }
+
+    /** Starts or stops the rain loop. Storms play it a notch louder. */
+    public void setRainSound(boolean on, boolean storm) {
+        int volume = Math.max(0, Math.min(5, se.volumeScale - (storm ? 0 : 1)));
+        if (on && (!rainPlaying || volume != rainVolume)) {
+            if (rainPlaying) weatherSound.stop();
+            weatherSound.volumeScale = volume;
+            weatherSound.setFile(27);
+            weatherSound.play();
+            weatherSound.loop();
+            rainPlaying = true;
+            rainVolume = volume;
+        } else if (!on && rainPlaying) {
+            weatherSound.stop();
+            rainPlaying = false;
+        }
     }
 
     public void drawPlayerPositionOverlay(Graphics2D g2) {
@@ -670,6 +694,7 @@ public class gamePanel extends JPanel implements Runnable {
         nextArea = outside;
         bossBattleOn = false;
         eManager.lighting.resetDay();
+        eManager.weather.reset();
 
         csManager.sceneNum = csManager.NA;
         csManager.scenePhase = 0;

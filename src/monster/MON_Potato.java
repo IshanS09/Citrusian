@@ -137,7 +137,7 @@ public class MON_Potato extends entity {
         }
 
         int distance = getTileDistance(gp.player);
-        if (distance < 10) {
+        if (distance < gp.eManager.weather.sightRange(10)) {
             moveTowardPlayer(60);
         } else {
             getRandomDirection();

@@ -77,7 +77,7 @@ public void setAction() {
         return;
     }
 
-    if(getTileDistance(gp.player) < 10) {
+    if(getTileDistance(gp.player) < gp.eManager.weather.sightRange(10)) {
         moveTowardPlayer(60);
     } else {
     getRandomDirection();
