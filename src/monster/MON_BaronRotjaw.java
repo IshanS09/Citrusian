@@ -6,7 +6,6 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.Random;
 import main.gamePanel;
-import object.OBJ_ironDoor;
 import object.OBJ_key_silver;
 import object.OBJ_rock;
 
@@ -200,15 +199,8 @@ public class MON_BaronRotjaw extends entity {
         gp.stopMusic();
         gp.playMusic(0);
 
-        // Remove iron door
-        for(int i = 0; i < gp.obj[1].length; i++) {
-            if(gp.obj[gp.currentMap][i] != null && 
-               gp.obj[gp.currentMap][i].name.equals(OBJ_ironDoor.objName)) {
-                gp.playSE(19);
-                gp.obj[gp.currentMap][i] = null;
-                break;
-            }
-        }
+        // Open the door the cutscene locked (all of them, in case a reload made two)
+        gp.csManager.openBossDoors();
        
         // Drop silver key
         dropItem(new OBJ_key_silver(gp));

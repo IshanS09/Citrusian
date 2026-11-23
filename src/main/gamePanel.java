@@ -100,6 +100,7 @@ public class gamePanel extends JPanel implements Runnable {
     public final int tradeState = 8;
     public final int sleepState = 9;
     public final int cutsceneState = 10;
+    public final int fishingState = 11;
 
     public boolean bossBattleOn = false;
 
@@ -107,6 +108,7 @@ public class gamePanel extends JPanel implements Runnable {
     public int ngPlus = 0;
     boolean wasNight = false;
     public QuestManager questManager = new QuestManager(this);
+    public FishingManager fishing = new FishingManager(this);
 
     public int currentArea;
     public int nextArea;
@@ -404,6 +406,10 @@ public class gamePanel extends JPanel implements Runnable {
                 potatoRespawnCounter = 0;
             }
             
+        }
+
+        if (gameState == fishingState) {
+            fishing.update();
         }
 
         // Update projectiles

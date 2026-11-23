@@ -103,8 +103,15 @@ public class keyHandler implements KeyListener {
             if(code == KeyEvent.VK_SPACE) {
                 spacePressed = true;
             }
+            if(code == KeyEvent.VK_R) {
+                gp.fishing.tryCast();
+            }
             if(code == KeyEvent.VK_O) {
-                if (gp.saveLoad.save()) {
+                if (gp.bossBattleOn) {
+                    // A save in the middle of a fight can't bring the fight back
+                    gp.ui.addMessage("You can't save during a boss fight!");
+                    gp.playSE(15);
+                } else if (gp.saveLoad.save()) {
                     gp.ui.addMessage("Game Saved!");
                     gp.playSE(9);
                 } else {
@@ -141,6 +148,15 @@ public class keyHandler implements KeyListener {
             }
 
     }        
+    else if(gp.gameState == gp.fishingState) {
+        if (code == KeyEvent.VK_ENTER) {
+            enterHeld = true;
+            gp.fishing.onEnter();
+        }
+        if (code == KeyEvent.VK_ESCAPE) {
+            gp.fishing.cancel();
+        }
+    }
     else if(gp.gameState == gp.dialogueState || gp.gameState == gp.cutsceneState) {
         if (code == KeyEvent.VK_ENTER) {
             enterPressed = true;

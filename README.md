@@ -15,6 +15,7 @@ Play as the **Lone Orange**, a resilient survivor on the Isle of Nectar. The Rot
 - Watch out for the Weeping Onion's tear gas and the Spud Brute's charge
 - Veggies get tougher at night but drop double coins
 - Weather: rain and storms slow your fire seeds, fog cuts how far you (and the veggies) can see, and the Rotting Marsh is always misty
+- Fishing: buy a rod from the merchant, cast into any water and reel in Minnows, Sunfish, Marsh Eels and the rare Golden Carp (more of them at night, faster bites in the rain). Eat your catch to heal or sell it
 - Side quests from the old apple, with a hidden Golden Seed and a sword you can't buy
 - New Game+ after the credits: keep your level and gear, face tougher veggies
 - Save/load system that remembers where you are, cutscenes, lighting engine, and pathfinding AI
@@ -31,9 +32,10 @@ Play as the **Lone Orange**, a resilient survivor on the Isle of Nectar. The Rot
 | Enter | Attack, talk, confirm, use selected item. Keep holding after a swing to charge, let go when the bar turns gold |
 | Space | Guard with shield (time it right to parry). Uses stamina |
 | F | Shoot fire seed |
+| R | Cast your fishing line (needs a Fishing Rod, face the water). Press Enter on the "!" to hook, then hold Enter to keep the fish in the green bar |
 | Shift | Dash (uses a Dash item and stamina) |
 | C | Open or close the character and inventory screen |
-| O | Save the game |
+| O | Save the game (not during a boss fight) |
 | Esc | Options |
 | T | Toggle full screen |
 

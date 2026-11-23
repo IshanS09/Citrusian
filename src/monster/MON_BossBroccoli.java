@@ -132,11 +132,14 @@ public void checkDrop() {
     gp.stopMusic();
     gp.playMusic(18);
 
-    for(int i = 0; i < gp.obj[1].length; i++) {
+    // Opens the door to the Citrusian Helm and the way back out.
+    // (Before, this only removed the first iron door it found, which was the helm door,
+    // so the entrance stayed locked.)
+    gp.csManager.openBossDoors();
+    for(int i = 0; i < gp.obj[gp.currentMap].length; i++) {
         if(gp.obj[gp.currentMap][i] != null && gp.obj[gp.currentMap][i].name.equals(OBJ_ironDoor.objName)) {
             gp.playSE(19);
             gp.obj[gp.currentMap][i] = null;
-            break;
         }
     }
    

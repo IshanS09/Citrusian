@@ -1,6 +1,7 @@
 package main;
 
 import entity.PlayerDummy;
+import entity.entity;
 import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -29,7 +30,84 @@ public class CutsceneManager {
     public final int intro = 5;
 
     public boolean allowDialogue = false;
- 
+
+    // Where each boss cutscene drops its iron door: {map, col, row}.
+    // The boss arena is always north of the door, the way in is the tile just south of it.
+    public static final int[][] BOSS_DOORS = {
+        {3, 57, 48},  // Malibroc
+        {4, 50, 44},  // Baron Rotjaw
+        {5, 51, 36},  // Pea King
+    };
+
+    boolean bossDefeated(int map) {
+        switch(map) {
+            case 3: return data.Progress.maliBrocDefeated;
+            case 4: return data.Progress.baronRotjawDefeated;
+            case 5: return data.Progress.peaKingDefeated;
+        }
+        return true;
+    }
+
+    /**
+     * Run after loading a save. The cutscene door and the boss wake-up only exist while a
+     * fight is running, so a save made mid-fight (or by an older version) can come back with
+     * a sleeping boss and a door that never opens. This removes any boss door and, if the
+     * boss is still alive, puts the player back outside the arena so walking in replays the
+     * cutscene and starts the fight properly.
+     */
+    public void fixBossRoomsAfterLoad() {
+        for (int[] b : BOSS_DOORS) {
+            int map = b[0], col = b[1], row = b[2];
+            for (int i = 0; i < gp.obj[map].length; i++) {
+                entity o = gp.obj[map][i];
+                if (o != null && OBJ_ironDoor.objName.equals(o.name)
+                        && o.worldX == col * gp.tileSize && o.worldY == row * gp.tileSize) {
+                    gp.obj[map][i] = null;
+                }
+            }
+            if (gp.currentMap == map && !bossDefeated(map) && gp.player.worldY < row * gp.tileSize) {
+                gp.player.worldX = col * gp.tileSize;
+                gp.player.worldY = (row + 1) * gp.tileSize;
+                gp.player.direction = "down";
+            }
+        }
+    }
+
+    /** Drops the iron door behind the player, unless one is already there. */
+    void lockBossDoor(int col, int row) {
+        for (int i = 0; i < gp.obj[gp.currentMap].length; i++) {
+            entity o = gp.obj[gp.currentMap][i];
+            if (o != null && OBJ_ironDoor.objName.equals(o.name)
+                    && o.worldX == col * gp.tileSize && o.worldY == row * gp.tileSize) {
+                o.temp = true;
+                return;
+            }
+        }
+        for (int i = 0; i < gp.obj[gp.currentMap].length; i++) {
+            if (gp.obj[gp.currentMap][i] == null) {
+                gp.obj[gp.currentMap][i] = new OBJ_ironDoor(gp);
+                gp.obj[gp.currentMap][i].worldX = col * gp.tileSize;
+                gp.obj[gp.currentMap][i].worldY = row * gp.tileSize;
+                gp.obj[gp.currentMap][i].temp = true;
+                gp.playSE(19);
+                return;
+            }
+        }
+    }
+
+    /** Opens every door a boss cutscene locked on the current map. Called when a boss dies. */
+    public void openBossDoors() {
+        boolean opened = false;
+        for (int i = 0; i < gp.obj[gp.currentMap].length; i++) {
+            entity o = gp.obj[gp.currentMap][i];
+            if (o != null && o.temp && OBJ_ironDoor.objName.equals(o.name)) {
+                gp.obj[gp.currentMap][i] = null;
+                opened = true;
+            }
+        }
+        if (opened) gp.playSE(19);
+    }
+
     public CutsceneManager(gamePanel gp) {
         this.gp = gp;
 
@@ -59,16 +137,7 @@ public class CutsceneManager {
         gp.bossBattleOn = true;
         gp.ui.npc = null; 
  
-        for (int i = 0; i < gp.obj[1].length; i++) {
-            if (gp.obj[gp.currentMap][i] == null) {
-                gp.obj[gp.currentMap][i] = new OBJ_ironDoor(gp);
-                gp.obj[gp.currentMap][i].worldX = 57 * gp.tileSize;
-                gp.obj[gp.currentMap][i].worldY = 48 * gp.tileSize;
-                gp.obj[gp.currentMap][i].temp = true;
-                gp.playSE(19);
-                break;
-            }
-        }
+        lockBossDoor(57, 48);
 
 
         for (int i = 0; i < gp.npc[1].length; i++) {
@@ -160,16 +229,7 @@ public class CutsceneManager {
         gp.bossBattleOn = true;
 
         // Lock the door
-        for (int i = 0; i < gp.obj[1].length; i++) {
-            if (gp.obj[gp.currentMap][i] == null) {
-                gp.obj[gp.currentMap][i] = new OBJ_ironDoor(gp);
-                gp.obj[gp.currentMap][i].worldX = 50 * gp.tileSize; // Adjust coordinates as needed
-                gp.obj[gp.currentMap][i].worldY = 44 * gp.tileSize;
-                gp.obj[gp.currentMap][i].temp = true;
-                gp.playSE(19);
-                break;
-            }
-        }
+        lockBossDoor(50, 44);
 
         // Create player dummy
         for (int i = 0; i < gp.npc[1].length; i++) {
@@ -253,16 +313,7 @@ public class CutsceneManager {
         gp.ui.npc = null; // Clear any previous dialogue
 
         // Lock the door
-        for (int i = 0; i < gp.obj[1].length; i++) {
-            if (gp.obj[gp.currentMap][i] == null) {
-                gp.obj[gp.currentMap][i] = new OBJ_ironDoor(gp);
-                gp.obj[gp.currentMap][i].worldX = 51 * gp.tileSize; // Adjust coordinates as needed
-                gp.obj[gp.currentMap][i].worldY = 36 * gp.tileSize;
-                gp.obj[gp.currentMap][i].temp = true;
-                gp.playSE(19);
-                break;
-            }
-        }
+        lockBossDoor(51, 36);
 
         // Create player dummy
         for (int i = 0; i < gp.npc[1].length; i++) {

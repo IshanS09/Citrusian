@@ -31,6 +31,20 @@ public class Particle extends entity {
         worldX = generator.worldX + offset;
         worldY = generator.worldY + offset;
     }
+
+    /** Same as above but starts at an exact world position (its center). */
+    public Particle(gamePanel gp, int startX, int startY, Color color, int size, int speed, int maxLife, int xd, int yd) {
+        super(gp);
+        this.color = color;
+        this.size = size;
+        this.speed = speed;
+        this.maxLife = maxLife;
+        this.xd = xd;
+        this.yd = yd;
+        life = maxLife;
+        worldX = startX - size/2;
+        worldY = startY - size/2;
+    }
     public void update() {
         
         life--;

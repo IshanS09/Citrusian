@@ -9,6 +9,7 @@ import object.OBJ_Lantern;
 import object.OBJ_Regeneration;
 import object.OBJ_SpeedBoost;
 import object.OBJ_Tent;
+import object.OBJ_FishingRod;
 import object.OBJ_axe;
 import object.OBJ_axe_watermelon;
 import object.OBJ_picaxe;
@@ -83,6 +84,9 @@ public class npc_lemon extends entity {
 
         // TENT
         inventory.add(new OBJ_Tent(gp));  
+
+        // FISHING (last free slot: the shop holds 20 items)
+        inventory.add(new OBJ_FishingRod(gp));
     }
     public void speak() {
         

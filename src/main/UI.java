@@ -120,6 +120,11 @@ public class UI {
        if(gp.gameState == gp.sleepState) {
             drawSleepScreen();
        }
+       if(gp.gameState == gp.fishingState) {
+            drawPlayerLife();
+            gp.fishing.draw(g2);
+            drawMessage();
+       }
     }
     public void drawMonsterLife() {
 

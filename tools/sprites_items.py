@@ -327,6 +327,64 @@ def fruit_basket():
     return done(c)
 
 
+# ---------------------------------------------------------------- fishing
+def fishing_rod():
+    """Bamboo rod running bottom-left to top-right, reel near the grip, line hanging off the tip."""
+    c = Canvas(16)
+    bamboo = rgb('c9a45a')
+    c.line(2, 14, 13, 2, bamboo, 'rod'); c.line(3, 14, 13, 3, bamboo, 'rod')
+    c.shade('rod', bamboo, hi=rgb('ecd59a'), lo=rgb('8f6f32'))
+    c.pts([(5, 10), (8, 7), (11, 4)], rgb('8f6f32'), 'node')  # bamboo joints
+    c.pts([(1, 15), (2, 15), (1, 14)], rgb('6b3f22'), 'grip')
+    c.ellipse(5.5, 12.5, 1.8, 1.8, IRON, 'reel'); c.shade('reel', IRON)
+    c.set(5, 12, STEEL)
+    c.line(14, 2, 14, 10, rgb('e8e8e8'))
+    c.pts([(14, 11), (13, 11)], rgb('e53935'), 'bob'); c.set(14, 12, WHITE, 'bob')
+    return done(c)
+
+
+def fish_icon(body, belly, fin, eye=K, spots=None, long=False):
+    c = Canvas(16)
+    if long:
+        c.ellipse(8, 8, 6.8, 2.4, body, 'body')
+        c.poly([(1.5, 8), (0, 5.5), (0, 10.5)], fin, 'tail')
+    else:
+        c.ellipse(8.5, 8, 5.5, 3.6, body, 'body')
+        c.poly([(3.5, 8), (0.5, 4.5), (0.5, 11.5)], fin, 'tail')
+        c.poly([(7, 4.6), (10, 2.5), (11, 5)], fin, 'fin')
+    for y in range(16):
+        for x in range(16):
+            if c.tag[y][x] == 'body' and y >= 9:
+                c.set(x, y, belly, 'belly')
+    c.shade('body', body); c.shade('belly', belly, hi_amt=.1)
+    c.shade('tail', fin); c.shade('fin', fin)
+    if spots:
+        spots(c)
+    c.set(12 if not long else 13, 7, eye)
+    return done(c)
+
+
+def carp_spots(c):
+    c.pts([(7, 6), (9, 7), (8, 9)], rgb('fff1a8'))
+
+
+def eel_spots(c):
+    c.pts([(4, 7), (7, 8), (10, 7)], rgb('2f4a2a'))
+
+
+def old_boot():
+    c = Canvas(16)
+    leather = rgb('7a5232')
+    c.rect(4, 2, 9, 10, leather, 'leg')
+    c.poly([(4, 9), (14.5, 10), (15, 13.5), (4, 13.5)], leather, 'foot')
+    c.shade('leg', leather); c.shade('foot', leather)
+    c.rect(3, 14, 15, 14, rgb('3a2a1e'), 'sole')
+    c.pts([(6, 4), (7, 6), (6, 8)], rgb('c8b48a'))  # laces
+    c.pts([(12, 11), (10, 12)], rgb('5cae4a'))       # pond weed
+    c.set(5, 1, rgb('5cae4a'))
+    return done(c)
+
+
 ITEMS = {
     'DefaultSword': lambda: blade_icon(STEEL, WHITE, STEEL_D, GOLD, GRIP, rgb('d62828')),
     'BananaBlade': lambda: banana_blade(),
@@ -366,6 +424,12 @@ ITEMS = {
     'Full': lambda: seed_icon(True),
     'Empty': lambda: seed_icon(False),
     'fruitBasket': fruit_basket,
+    'fishingRod': fishing_rod,
+    'minnow': lambda: fish_icon(rgb('8fb3c9'), rgb('dfe9ef'), rgb('6a8ea6')),
+    'sunfish': lambda: fish_icon(rgb('f39a1e'), rgb('ffd54f'), rgb('3b8fe0')),
+    'marshEel': lambda: fish_icon(rgb('5f7a3a'), rgb('a8b86a'), rgb('42572a'), spots=eel_spots, long=True),
+    'goldenCarp': lambda: fish_icon(rgb('e8b931'), rgb('fff1a8'), rgb('e8432a'), spots=carp_spots),
+    'oldBoot': old_boot,
 }
 
 

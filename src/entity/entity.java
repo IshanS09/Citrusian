@@ -234,14 +234,78 @@ public class entity {
         if(nightBuffed && "Crop Coin".equals(droppedItem.name)) {
             droppedItem.value *= 2;
         }
+        // Drop from the middle of the body, not the sprite's top-left corner. Big mobs
+        // like the potato have their body more than a tile away from worldX/worldY.
+        int ts = gp.tileSize;
+        int centerX = worldX + solidAreaDefaultX + solidArea.width / 2;
+        int centerY = worldY + solidAreaDefaultY + solidArea.height / 2;
+        int dropX = centerX - ts / 2;
+        int dropY = centerY - ts / 2;
+
+        // If that spot is water, a wall or a tree, move the drop to the closest tile
+        // the player can actually walk on, so it never gets stuck out of reach
+        int col = centerX / ts;
+        int row = centerY / ts;
+        if(!isOpenTile(col, row)) {
+            int[] spot = nearestOpenTile(col, row, 6);
+            if(spot != null) {
+                dropX = spot[0] * ts;
+                dropY = spot[1] * ts;
+            }
+        }
+
         for(int i = 0; i < gp.obj[1].length; i++) {
             if(gp.obj[gp.currentMap][i] == null) {
                 gp.obj[gp.currentMap][i] = droppedItem;
-                gp.obj[gp.currentMap][i].worldX = worldX;
-                gp.obj[gp.currentMap][i].worldY = worldY;
+                gp.obj[gp.currentMap][i].worldX = dropX;
+                gp.obj[gp.currentMap][i].worldY = dropY;
                 break;
             }
         }
+    }
+
+    /** True if the player could stand on this tile: no solid tile, dry tree or wall on it. */
+    public boolean isOpenTile(int col, int row) {
+        return isOpenTile(gp.currentMap, col, row);
+    }
+
+    public boolean isOpenTile(int map, int col, int row) {
+        if(col < 0 || row < 0 || col >= gp.maxWorldCol || row >= gp.maxWorldRow) return false;
+        int tileNum = gp.tileM.mapTileNum[map][col][row];
+        if(tileNum < 0 || tileNum >= gp.tileM.tile.length || gp.tileM.tile[tileNum] == null
+                || gp.tileM.tile[tileNum].collision) {
+            return false;
+        }
+        for(int i = 0; i < gp.iTile[map].length; i++) {
+            entity t = gp.iTile[map][i];
+            if(t != null && t.collision && t.worldX / gp.tileSize == col && t.worldY / gp.tileSize == row) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /** Closest open tile to (col,row), searching outward ring by ring. Null if none nearby. */
+    public int[] nearestOpenTile(int col, int row, int maxRadius) {
+        return nearestOpenTile(gp.currentMap, col, row, maxRadius);
+    }
+
+    public int[] nearestOpenTile(int map, int col, int row, int maxRadius) {
+        for(int r = 1; r <= maxRadius; r++) {
+            int[] best = null;
+            int bestDist = Integer.MAX_VALUE;
+            for(int dc = -r; dc <= r; dc++) {
+                for(int dr = -r; dr <= r; dr++) {
+                    if(Math.max(Math.abs(dc), Math.abs(dr)) != r) continue; // just this ring
+                    if(isOpenTile(map, col + dc, row + dr)) {
+                        int d = dc * dc + dr * dr;
+                        if(d < bestDist) { bestDist = d; best = new int[]{col + dc, row + dr}; }
+                    }
+                }
+            }
+            if(best != null) return best;
+        }
+        return null;
     }
     public Color getParticleColor() {
         Color color = null;
@@ -279,17 +343,27 @@ public class entity {
     Color iceBlue2 = new Color(200, 240, 255); // Almost white
     Color iceBlue3 = new Color(100, 180, 230); // Darker blue
     
-    // Create ice particles in random directions
+    // Center on the mob's body (its solid area), not its top-left tile. Big sprites
+    // like the potato or the bosses have their body well away from worldX/worldY.
+    // Uses the default offsets because collision checks move solidArea around for a moment.
+    int bodyW = Math.max(generator.solidArea.width, 16);
+    int bodyH = Math.max(generator.solidArea.height, 16);
+    int centerX = generator.worldX + generator.solidAreaDefaultX + generator.solidArea.width / 2;
+    int centerY = generator.worldY + generator.solidAreaDefaultY + generator.solidArea.height / 2;
+
+    // Create ice particles in random directions, spread a little over the body
     for(int i = 0; i < 5; i++) {
         int size = (int)(Math.random() * 4) + 2; // 2-6 pixels
         int speed = 1;
         int maxLife = 20;
         int xd = (int)(Math.random() * 3) - 1; // -1, 0, or 1
         int yd = (int)(Math.random() * 3) - 1;
-        
+        int startX = centerX + (int)((Math.random() - 0.5) * bodyW * 0.6);
+        int startY = centerY + (int)((Math.random() - 0.5) * bodyH * 0.6);
+
         Color color = (i % 3 == 0) ? iceBlue1 : (i % 3 == 1) ? iceBlue2 : iceBlue3;
-        
-        Particle particle = new Particle(gp, generator, color, size, speed, maxLife, xd, yd);
+
+        Particle particle = new Particle(gp, startX, startY, color, size, speed, maxLife, xd, yd);
         gp.particleList.add(particle);
     }
 }

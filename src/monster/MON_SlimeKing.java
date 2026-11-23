@@ -7,7 +7,6 @@ import java.awt.image.BufferedImage;
 import java.util.Random;
 import main.gamePanel;
 import object.OBJ_Fireskull;
-import object.OBJ_ironDoor;
 import object.OBJ_key;
 
 public class MON_SlimeKing extends entity {
@@ -225,15 +224,8 @@ public class MON_SlimeKing extends entity {
         gp.stopMusic();
         gp.playMusic(18);
 
-        // Remove iron door
-        for(int i = 0; i < gp.obj[1].length; i++) {
-            if(gp.obj[gp.currentMap][i] != null && 
-               gp.obj[gp.currentMap][i].name.equals(OBJ_ironDoor.objName)) {
-                gp.playSE(19);
-                gp.obj[gp.currentMap][i] = null;
-                break;
-            }
-        }
+        // Open the door the cutscene locked (all of them, in case a reload made two)
+        gp.csManager.openBossDoors();
        
         // Drop gold key
         dropItem(new OBJ_key(gp));

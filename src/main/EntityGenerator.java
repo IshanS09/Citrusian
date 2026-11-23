@@ -7,6 +7,8 @@ import object.OBJ_DashItem;
 import object.OBJ_FirePotion;
 import object.OBJ_FireSeed;
 import object.OBJ_Freeze;
+import object.OBJ_Fish;
+import object.OBJ_FishingRod;
 import object.OBJ_Invisibility;
 import object.OBJ_Lantern;
 import object.OBJ_Regeneration;
@@ -91,6 +93,12 @@ public class EntityGenerator {
             case OBJ_heart.objName: obj = new OBJ_heart(gp); break;
             case OBJ_sword_lime.objName: obj = new OBJ_sword_lime(gp); break;
             case OBJ_GoldenSeed.objName: obj = new OBJ_GoldenSeed(gp); break;
+            case OBJ_FishingRod.objName: obj = new OBJ_FishingRod(gp); break;
+            case OBJ_Fish.MINNOW:
+            case OBJ_Fish.SUNFISH:
+            case OBJ_Fish.MARSH_EEL:
+            case OBJ_Fish.GOLDEN_CARP:
+            case OBJ_Fish.OLD_BOOT: obj = new OBJ_Fish(gp, itemName); break;
         }
         return obj;
     }

@@ -75,7 +75,9 @@ public class SaveLoad {
 
             for(int mapNum = 0; mapNum < gp.maxMap; mapNum++) {
                 for(int i = 0; i < gp.obj[1].length; i++) {
-                    if(gp.obj[mapNum][i] == null) {
+                    // Temporary objects (the doors a boss cutscene drops) are not saved.
+                    // They come back when the cutscene plays again.
+                    if(gp.obj[mapNum][i] == null || gp.obj[mapNum][i].temp) {
                         ds.mapObjectNames[mapNum][i] = "N/A";
                     } else {
                         ds.mapObjectNames[mapNum][i] = gp.obj[mapNum][i].name;
@@ -219,11 +221,37 @@ public class SaveLoad {
                 java.util.Arrays.fill(gp.monster[mapNum], null);
             }
             gp.aSetter.setMonster();
+
+            // Older versions could drop loot into rivers. Pull anything stuck there back onto land.
+            rescueStuckDrops();
+
+            // Clear boss doors and step back out of an unfinished boss arena
+            gp.csManager.fixBossRoomsAfterLoad();
             return true;
 
         } catch(Exception e) {
             System.out.println("Error loading game: " + e.getMessage());
             return false;
+        }
+    }
+
+    /** Moves loose items (coins, hearts, keys...) that sit on a tile the player can't reach. */
+    public void rescueStuckDrops() {
+        int ts = gp.tileSize;
+        for (int map = 0; map < gp.maxMap; map++) {
+            for (int i = 0; i < gp.obj[map].length; i++) {
+                entity o = gp.obj[map][i];
+                if (o == null || o.type == o.type_obstacle || o.collision) continue; // leave doors and chests alone
+                int col = (o.worldX + ts / 2) / ts;
+                int row = (o.worldY + ts / 2) / ts;
+                if (!o.isOpenTile(map, col, row)) {
+                    int[] spot = o.nearestOpenTile(map, col, row, 6);
+                    if (spot != null) {
+                        o.worldX = spot[0] * ts;
+                        o.worldY = spot[1] * ts;
+                    }
+                }
+            }
         }
     }
 }
